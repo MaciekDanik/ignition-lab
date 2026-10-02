@@ -1,0 +1,37 @@
+{
+  "users": [
+    {
+      "uuid": "330a4892-6550-44c7-bd9d-e3c73a5ad766",
+      "username": "opcuauser",
+      "schedule": "Always",
+      "password": "[28935973]f5c263c12f6a495528d6080d32d657c98058390476292584a6674f7395cabfd5",
+      "passwordDate": "20261002.115744621+0200",
+      "passwordHistory": [],
+      "createdDate": "20261002.115744621+0200",
+      "lastModifiedDate": "20261002.115744621+0200",
+      "roles": [
+        "11f500be-cb9e-40b4-86f6-d45b1562f728",
+        "9b6c5d55-b295-4b7a-9484-aab87e8d7b60"
+      ],
+      "extraProps": [],
+      "scheduleAdjustments": [],
+      "contactInfos": []
+    }
+  ],
+  "roles": [
+    {
+      "uuid": "11f500be-cb9e-40b4-86f6-d45b1562f728",
+      "rolename": "ReadWrite",
+      "description": "ReadWrite role.",
+      "createdDate": "20261002.115744621+0200",
+      "lastModifiedDate": "20261002.115744621+0200"
+    },
+    {
+      "uuid": "9b6c5d55-b295-4b7a-9484-aab87e8d7b60",
+      "rolename": "ConfigureAdmin",
+      "description": "ConfigureAdmin role.",
+      "createdDate": "20261002.115744621+0200",
+      "lastModifiedDate": "20261002.115744621+0200"
+    }
+  ]
+}

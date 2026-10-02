@@ -1,0 +1,28 @@
+{
+  "users": [
+    {
+      "uuid": "d644c17b-9ea8-481e-9f99-0ed45897bb29",
+      "username": "masiek",
+      "schedule": "Always",
+      "password": "[617cdfa8]f5b778bb18fa4e45837e2e303e8c0a0b8d54edda911eefddbbf7936d2dfea620",
+      "passwordDate": "20261002.115725287+0200",
+      "passwordHistory": [],
+      "createdDate": "20261002.115725286+0200",
+      "lastModifiedDate": "20261002.115725286+0200",
+      "roles": [
+        "f8fd8ee7-833f-4222-9ba5-8ec7fbdc2627"
+      ],
+      "extraProps": [],
+      "scheduleAdjustments": [],
+      "contactInfos": []
+    }
+  ],
+  "roles": [
+    {
+      "uuid": "f8fd8ee7-833f-4222-9ba5-8ec7fbdc2627",
+      "rolename": "Administrator",
+      "createdDate": "20261002.115725286+0200",
+      "lastModifiedDate": "20261002.115725286+0200"
+    }
+  ]
+}

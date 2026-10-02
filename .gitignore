@@ -1,0 +1,47 @@
+# Databases and internal state
+**/db/
+**/metricsdb/
+**/autobackup/
+**/db_backup_sqlite.idb
+**/valueStore.idb
+
+# Cache and runtime files
+**/jar-cache/
+**/request
+**/response
+**/var/
+*.tmp
+*.bak
+*.log
+**/logs/
+
+# Security and local secrets
+**/certificates/
+**/keystore/
+
+# Host-specific configuration
+**/config/local/
+**/config/resources/local/
+
+# Container and conversion artifacts
+**/.container-init.conf
+**/conversion-report.txt
+**.digest.json
+**/projects/conversion-report.txt
+**/migration-log-*.md
+**/.resources/
+
+# Alarm history
+**/.alarms_*
+
+# Gateway backups
+*.gwbk
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
