@@ -15,7 +15,7 @@
           "y": 309
         },
         "props": {
-          "text": "TEST"
+          "text": "Changed after initial commit"
         },
         "type": "ia.display.label"
       }
