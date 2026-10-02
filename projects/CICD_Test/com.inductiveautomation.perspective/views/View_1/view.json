@@ -18,6 +18,21 @@
           "text": "Changed after initial commit"
         },
         "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 50,
+          "x": 319,
+          "y": 135
+        },
+        "props": {
+          "text": "Feature new label"
+        },
+        "type": "ia.display.label"
       }
     ],
     "meta": {
