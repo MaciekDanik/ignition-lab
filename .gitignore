@@ -72,9 +72,7 @@ config/resources/core/ignition/quickstart/
 config/resources/core/ignition/tag-definition/
 config/resources/core/ignition/tag-type-definition/
 config/resources/core/ignition/tag-provider/System/
-config/resources/core/ignition/tag-provider/default/
 config/resources/core/ignition/tag-group/System/
-config/resources/core/ignition/tag-group/default/
 
 # Generated logging configuration
 log4j.properties
