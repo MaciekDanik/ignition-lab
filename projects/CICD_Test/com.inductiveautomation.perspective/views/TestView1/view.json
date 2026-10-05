@@ -50,6 +50,21 @@
           }
         },
         "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 69,
+          "width": 250,
+          "x": 530,
+          "y": 89
+        },
+        "props": {
+          "text": "This is from ubuntu"
+        },
+        "type": "ia.display.label"
       }
     ],
     "meta": {

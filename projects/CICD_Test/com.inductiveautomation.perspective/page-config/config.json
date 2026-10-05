@@ -1,6 +1,7 @@
 {
   "pages": {
     "/": {
+      "title": "",
       "viewPath": "TestView1"
     }
   },
