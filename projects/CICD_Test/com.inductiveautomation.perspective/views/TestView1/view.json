@@ -19,7 +19,7 @@
           "y": 111
         },
         "props": {
-          "text": "Initial Commit label"
+          "text": "Second Commit label"
         },
         "type": "ia.display.label"
       },
