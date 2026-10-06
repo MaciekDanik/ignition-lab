@@ -66,8 +66,8 @@
     "address": "127.0.0.1",
     "device": {},
     "geolocation": {},
-    "locale": "en-US",
+    "locale": "pl-PL",
     "offline": {},
-    "timeZoneId": "Etc/UTC"
+    "timeZoneId": "Europe/Warsaw"
   }
 }
