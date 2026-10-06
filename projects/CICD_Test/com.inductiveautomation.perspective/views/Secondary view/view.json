@@ -14,8 +14,15 @@
           "x": 241,
           "y": 236
         },
-        "props": {
-          "value": 69
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "expression": "getSecond(now())"
+              },
+              "type": "expr"
+            }
+          }
         },
         "type": "ia.display.cylindrical-tank"
       }
