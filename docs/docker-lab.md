@@ -1,518 +1,113 @@
-# Finish and Commit the Docker TEST Gateway
+# Finish and Commit the Docker TEST and DEV Gateways
 
-This phase completes the first containerized Ignition milestone.
+This phase completes the initial two-Gateway Docker milestone for the Ignition research lab.
 
-At this point:
+## Current verified state
 
-- the native Ubuntu Gateway is still running on Ubuntu port `8088`;
-- the Docker TEST Gateway is running on Ubuntu port `9088`;
-- the Docker TEST Gateway is healthy;
-- the Docker TEST Gateway survives a restart;
-- the `admin` account works;
+The Ubuntu VM now runs two containerized Ignition 8.3.9 Gateways:
+
+- Docker TEST Gateway on Ubuntu port `9088`;
+- Docker DEV Gateway on Ubuntu port `9188`.
+
+The native Ubuntu Ignition Gateway has been stopped to free memory. The native Windows Gateway remains independent and can continue running.
+
+The following behavior has been verified:
+
+- TEST and DEV are both running;
+- both Docker health checks report `healthy`;
+- both Gateways return `{"state":"RUNNING"}` from `StatusPing`;
+- neither container has been OOM-killed;
+- neither container has restarted unexpectedly;
+- TEST survives a container restart;
+- DEV survives a container restart;
+- the `admin` account works on both Gateways;
+- TEST and DEV use different administrator password files;
+- `CICD_Test` is available on both Gateways;
 - Git-controlled source is separated from ignored Gateway runtime files;
-- the known OPC UA `opcua-module` warning is not blocking this milestone;
-- the DEV Gateway has not been added yet.
+- the running Gateways do not write directly into `projects/` or `config/resources/`;
+- the known OPC UA `opcua-module` warning is not blocking this milestone.
 
 The purpose of this phase is to:
 
-1. make TEST runtime synchronization repeatable;
+1. keep TEST and DEV runtime synchronization repeatable;
 2. document the current lab layout;
-3. validate the files;
-4. commit the TEST Gateway setup on the feature branch;
-5. measure memory before adding DEV.
+3. validate the repository files;
+4. commit the DEV Gateway setup on its feature branch;
+5. preserve the current memory operating rule before adding CI/CD automation.
 
 ---
 
-## 1. Confirm the current branch
+## 1. Current architecture
 
-Go to the repository:
-
-```bash
-cd ~/ignition-lab/ignition-lab
+```text
+Windows host
+├── Native Windows Ignition Gateway
+│   └── Windows localhost:8088
+│
+└── VirtualBox Ubuntu VM
+    ├── Native Ubuntu Ignition Gateway
+    │   └── Stopped to save memory
+    │
+    ├── Docker TEST Gateway
+    │   ├── Container port: 8088
+    │   ├── Ubuntu host port: 9088
+    │   ├── Named volume: ignition-test-data
+    │   └── Runtime: runtime/test/
+    │
+    └── Docker DEV Gateway
+        ├── Container port: 8088
+        ├── Ubuntu host port: 9188
+        ├── Named volume: ignition-dev-data
+        └── Runtime: runtime/dev/
 ```
 
-Check the branch:
+The primary Ubuntu addresses are:
 
-```bash
-git branch --show-current
+```text
+Docker TEST: http://localhost:9088
+Docker DEV:  http://localhost:9188
 ```
 
-Expected result:
+The self-hosted GitHub Actions runner will eventually run inside Ubuntu, so it will use the Ubuntu addresses directly. VirtualBox forwarding to Windows is not required for the CI/CD workflow.
+
+---
+
+## 2. Branch state
+
+The TEST milestone was committed and pushed from:
 
 ```text
 feature/docker-test-gateway
 ```
 
-If it shows `master`, switch back:
+Verified TEST commit:
+
+```text
+8151c84 Add containerized Ignition TEST gateway
+```
+
+The DEV work should be performed on:
+
+```text
+feature/docker-dev-gateway
+```
+
+Confirm the current branch:
 
 ```bash
-git checkout feature/docker-test-gateway
+cd ~/ignition-lab/ignition-lab
+git branch --show-current
+```
+
+Expected while finishing DEV:
+
+```text
+feature/docker-dev-gateway
 ```
 
 ---
 
-## 2. Create the TEST runtime synchronization script
-
-The script will:
-
-- refuse to run while `ignition-test` is running;
-- copy Git-controlled projects into the ignored TEST runtime directory;
-- copy selected Gateway configuration into TEST runtime;
-- preserve Gateway-local security and OPC UA configuration;
-- reapply ACL permissions for the Ignition container user, UID `2003`.
-
-Create the scripts directory:
-
-```bash
-mkdir -p scripts
-```
-
-Create `scripts/sync-test-runtime.sh`:
-
-```bash
-cat <<'EOF' > scripts/sync-test-runtime.sh
-#!/usr/bin/env bash
-
-set -Eeuo pipefail
-
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$REPO_ROOT"
-
-CONTAINER_NAME="ignition-test"
-IGNITION_UID="2003"
-
-echo "Preparing TEST runtime from Git source..."
-echo
-
-if docker ps --format '{{.Names}}' | grep -qx "$CONTAINER_NAME"; then
-    echo "ERROR: $CONTAINER_NAME is currently running."
-    echo
-    echo "Stop it first:"
-    echo "  docker compose --env-file .env -f compose/compose.yml stop ignition-test"
-    exit 1
-fi
-
-if [[ ! -d projects ]]; then
-    echo "ERROR: Source directory does not exist: projects"
-    exit 1
-fi
-
-if [[ ! -d config/resources ]]; then
-    echo "ERROR: Source directory does not exist: config/resources"
-    exit 1
-fi
-
-echo "1. Synchronizing Ignition projects..."
-
-mkdir -p runtime/test/projects
-
-rsync -a --delete \
-    --exclude='.resources/' \
-    projects/ \
-    runtime/test/projects/
-
-echo "   Projects synchronized."
-
-echo
-echo "2. Synchronizing selected Gateway configuration..."
-
-mkdir -p runtime/test/config/resources
-
-rsync -a --delete \
-    --exclude='.resources/' \
-    --exclude='core/ignition/identity-provider/' \
-    --exclude='core/ignition/user-source/' \
-    --exclude='core/ignition/security-properties/' \
-    --exclude='core/ignition/opc-connection/' \
-    --exclude='core/com.inductiveautomation.opcua/' \
-    config/resources/ \
-    runtime/test/config/resources/
-
-echo "   Selected Gateway configuration synchronized."
-
-echo
-echo "3. Applying container access permissions..."
-
-sudo setfacl -R -m "u:${IGNITION_UID}:rwX" runtime/test
-sudo setfacl -R -d -m "u:${IGNITION_UID}:rwX" runtime/test
-
-echo "   ACL permissions applied for Ignition UID ${IGNITION_UID}."
-
-echo
-echo "TEST runtime synchronization completed."
-echo
-echo "The following Gateway-local resources were not overwritten:"
-echo "  - identity providers"
-echo "  - user sources"
-echo "  - security properties"
-echo "  - OPC connections"
-echo "  - OPC UA server configuration"
-echo
-echo "Start TEST with:"
-echo "  docker compose --env-file .env -f compose/compose.yml up -d ignition-test"
-EOF
-```
-
-Make the script executable:
-
-```bash
-chmod +x scripts/sync-test-runtime.sh
-```
-
-### Why the script refuses to run while TEST is running
-
-Replacing filesystem-backed resources underneath a running Gateway may cause partial reads, transient configurations, or unexpected resource reloads.
-
-For this first implementation, synchronization is performed only while the target Gateway is stopped.
-
-### Why excluded directories are preserved
-
-The script uses:
-
-```text
---delete
-```
-
-but it does not use:
-
-```text
---delete-excluded
-```
-
-Therefore, excluded Gateway-local directories are not overwritten or deleted during an ordinary synchronization.
-
----
-
-## 3. Validate the script
-
-Check the shell syntax:
-
-```bash
-bash -n scripts/sync-test-runtime.sh
-```
-
-Expected result: no output.
-
-Check executable permissions:
-
-```bash
-ls -l scripts/sync-test-runtime.sh
-```
-
-Expected beginning:
-
-```text
--rwxr-xr-x
-```
-
----
-
-## 4. Verify the script blocks synchronization while TEST is running
-
-The TEST Gateway should currently be running.
-
-Run:
-
-```bash
-./scripts/sync-test-runtime.sh
-```
-
-Expected result:
-
-```text
-ERROR: ignition-test is currently running.
-```
-
-This is intentional.
-
----
-
-## 5. Perform a real TEST runtime synchronization
-
-Stop TEST:
-
-```bash
-docker compose \
-  --env-file .env \
-  -f compose/compose.yml \
-  stop ignition-test
-```
-
-Confirm that the container is stopped:
-
-```bash
-docker ps --filter name=ignition-test
-```
-
-The command should not list a running `ignition-test` container.
-
-Run the synchronization script:
-
-```bash
-./scripts/sync-test-runtime.sh
-```
-
-The script may ask for the Ubuntu password because it runs `sudo setfacl`.
-
-Expected ending:
-
-```text
-TEST runtime synchronization completed.
-```
-
----
-
-## 6. Verify project synchronization
-
-Confirm that the project exists in TEST runtime:
-
-```bash
-test -f runtime/test/projects/CICD_Test/project.json \
-  && echo "CICD_Test synchronized correctly" \
-  || echo "ERROR: CICD_Test is missing"
-```
-
-Expected:
-
-```text
-CICD_Test synchronized correctly
-```
-
-Compare the Git project source with TEST runtime:
-
-```bash
-diff -qr \
-  --exclude='.resources' \
-  projects \
-  runtime/test/projects
-```
-
-Expected result: no output.
-
-No output means the project runtime copy matches the Git source.
-
----
-
-## 7. Verify Gateway-local configuration
-
-Check whether the clean TEST Gateway has generated its local security resources:
-
-```bash
-for path in \
-  runtime/test/config/resources/core/ignition/identity-provider \
-  runtime/test/config/resources/core/ignition/user-source \
-  runtime/test/config/resources/core/ignition/security-properties
-do
-    if [[ -d "$path" ]]; then
-        echo "Preserved Gateway-local path: $path"
-    else
-        echo "NOTICE: Gateway-local path not currently present: $path"
-    fi
-done
-```
-
-These directories may exist because Ignition generated them during commissioning.
-
-The important point is that the synchronization script does not overwrite them with old credentials from Git.
-
-The OPC UA issue can remain for this milestone. It does not block:
-
-- Gateway startup;
-- the admin login;
-- Perspective;
-- the container health check;
-- repository work;
-- future GitHub Actions work.
-
----
-
-## 8. Start TEST again
-
-```bash
-docker compose \
-  --env-file .env \
-  -f compose/compose.yml \
-  up -d ignition-test
-```
-
-Wait for startup:
-
-```bash
-sleep 60
-```
-
-Check health:
-
-```bash
-docker inspect ignition-test \
-  --format 'Status={{.State.Status}} Health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} OOMKilled={{.State.OOMKilled}} RestartCount={{.RestartCount}}'
-```
-
-If health is still `starting`, wait another 30 seconds:
-
-```bash
-sleep 30
-```
-
-Then repeat the health check.
-
-The desired result is similar to:
-
-```text
-Status=running Health=healthy OOMKilled=false
-```
-
-Check the status endpoint:
-
-```bash
-curl -sS http://localhost:9088/StatusPing
-echo
-```
-
-Expected:
-
-```json
-{"state":"RUNNING"}
-```
-
-Open the Gateway from the Ubuntu browser:
-
-```text
-http://localhost:9088
-```
-
-Confirm:
-
-- the `admin` login still works;
-- commissioning remains complete;
-- the Gateway name is `ignition-test`;
-- `CICD_Test` appears;
-- the Perspective project opens.
-
-Windows access through VirtualBox is not required for this milestone. The Docker TEST Gateway and future self-hosted runner operate inside Ubuntu.
-
----
-
-## 9. Confirm Git source remains isolated
-
-Check repository status:
-
-```bash
-git status --short
-```
-
-Expected result is approximately:
-
-```text
- M .gitignore
-?? .env.example
-?? compose/
-?? scripts/
-```
-
-Check the original Ignition source directories directly:
-
-```bash
-git status --short -- projects config/resources
-```
-
-Expected result: no output.
-
-Check ignored local data:
-
-```bash
-git status --short --ignored \
-  | grep -E '^!! (\.env$|runtime/|secrets/)'
-```
-
-Expected output should include:
-
-```text
-!! .env
-!! runtime/
-!! secrets/
-```
-
-Confirm that the password file is ignored:
-
-```bash
-git check-ignore -v secrets/test_gateway_admin_password.txt
-```
-
-Confirm that TEST runtime is ignored:
-
-```bash
-git check-ignore -v runtime/test/projects
-```
-
----
-
-## 10. Create the Docker lab documentation
-
-Create the documentation directory:
-
-```bash
-mkdir -p docs
-```
-
-Create `docs/docker-lab.md`:
-
-````bash
-cat <<'EOF' > docs/docker-lab.md
-# Docker Ignition Research Lab
-
-## Current Gateways
-
-The Ubuntu VM currently contains:
-
-1. A native Ubuntu Ignition Gateway.
-2. A Docker TEST Ignition Gateway.
-
-A separate native Ignition Gateway also runs on Windows.
-
-## Port Layout
-
-### Native Windows Gateway
-
-Accessible on Windows at:
-
-```text
-http://localhost:8088
-```
-
-### Native Ubuntu Gateway
-
-Accessible inside Ubuntu at:
-
-```text
-http://localhost:8088
-```
-
-### Docker TEST Gateway
-
-Docker publishes:
-
-```text
-Ubuntu port 9088 -> container port 8088
-```
-
-Accessible inside Ubuntu at:
-
-```text
-http://localhost:9088
-```
-
-The current Windows VirtualBox forwarding is not relied upon by the CI/CD workflow. Docker TEST administration is currently performed inside Ubuntu.
-
-### Future Docker DEV Gateway
-
-Reserved mapping:
-
-```text
-Ubuntu port 9188 -> container port 8088
-```
-
-## Source and Runtime Separation
+## 3. Source and runtime separation
 
 Git-controlled source:
 
@@ -528,9 +123,47 @@ runtime/test/projects/
 runtime/test/config/resources/
 ```
 
-The running Gateway must not mount the Git source directories directly.
+Ignored DEV runtime:
 
-Use this script to prepare TEST runtime:
+```text
+runtime/dev/projects/
+runtime/dev/config/resources/
+```
+
+Local secrets:
+
+```text
+secrets/test_gateway_admin_password.txt
+secrets/dev_gateway_admin_password.txt
+```
+
+Local environment file:
+
+```text
+.env
+```
+
+The running containers must mount the ignored runtime directories, not the Git source directories directly.
+
+---
+
+## 4. TEST synchronization script
+
+The existing TEST synchronization script is:
+
+```text
+scripts/sync-test-runtime.sh
+```
+
+It should:
+
+- refuse to run while `ignition-test` is running;
+- synchronize `projects/` into `runtime/test/projects/`;
+- synchronize selected `config/resources/` into `runtime/test/config/resources/`;
+- preserve Gateway-local security and OPC UA configuration;
+- apply ACL access for Ignition UID `2003`.
+
+Use it with:
 
 ```bash
 docker compose --env-file .env -f compose/compose.yml stop ignition-test
@@ -538,45 +171,117 @@ docker compose --env-file .env -f compose/compose.yml stop ignition-test
 docker compose --env-file .env -f compose/compose.yml up -d ignition-test
 ```
 
-## Gateway-Local Resources
+---
 
-The initial synchronization does not overwrite:
+## 5. DEV synchronization script
 
-- identity providers;
-- user sources;
-- security properties;
-- OPC connections;
-- OPC UA server configuration.
+The DEV synchronization script is:
 
-These resources may include credentials or environment-specific configuration.
+```text
+scripts/sync-dev-runtime.sh
+```
 
-## Known OPC UA Issue
-
-The source OPC UA configuration references a user source named `opcua-module`.
-
-The original user source contains existing hashed credentials and is not automatically deployed to the clean TEST Gateway.
-
-OPC UA security will be configured later using lab-only credentials. This issue does not currently prevent the Gateway, Perspective project, Docker health check, or Git workflow from operating.
-
-## TEST Health Check
+It should contain:
 
 ```bash
-curl -fsS http://localhost:9088/StatusPing
+CONTAINER_NAME="ignition-dev"
 ```
 
-Expected result:
+and use:
 
-```json
-{"state":"RUNNING"}
+```text
+runtime/dev/projects
+runtime/dev/config/resources
 ```
-EOF
-````
+
+It must not use:
+
+```text
+runtime/test
+ignition-test
+```
+
+Validate it:
+
+```bash
+bash -n scripts/sync-dev-runtime.sh
+```
+
+Inspect its important settings:
+
+```bash
+grep -nE \
+  'CONTAINER_NAME|runtime/dev|ignition-dev|runtime/test|ignition-test' \
+  scripts/sync-dev-runtime.sh
+```
+
+Use it with:
+
+```bash
+docker compose --env-file .env -f compose/compose.yml stop ignition-dev
+./scripts/sync-dev-runtime.sh
+docker compose --env-file .env -f compose/compose.yml up -d ignition-dev
+```
+
+The script should refuse to run while DEV is running. Test that behavior with:
+
+```bash
+./scripts/sync-dev-runtime.sh
+```
+
+Expected while DEV is active:
+
+```text
+ERROR: ignition-dev is currently running.
+```
 
 ---
 
-## 11. Run pre-commit validation
+## 6. Gateway-local resource exclusions
 
-### Validate Compose
+The first synchronization policy does not overwrite:
+
+```text
+core/ignition/identity-provider/
+core/ignition/user-source/
+core/ignition/security-properties/
+core/ignition/opc-connection/
+core/com.inductiveautomation.opcua/
+```
+
+These areas are initially Gateway-local because they contain or reference:
+
+- administrator and application authentication;
+- hashed user credentials;
+- identity-provider settings;
+- OPC UA authentication profiles;
+- environment-specific OPC connections;
+- Gateway-specific security settings.
+
+The current source OPC UA configuration references:
+
+```json
+"authenticationProfile": "opcua-module"
+```
+
+The corresponding source user profile is intentionally not automatically deployed because it contains existing hashed credentials.
+
+This known issue does not currently prevent:
+
+- TEST or DEV startup;
+- Gateway administration;
+- Perspective project loading;
+- Docker health checks;
+- Git operations;
+- later CI/CD automation.
+
+OPC UA security should be configured later using lab-only credentials and an explicit deployment policy.
+
+---
+
+## 7. Current Docker Compose requirements
+
+Validate Compose:
 
 ```bash
 docker compose \
@@ -586,138 +291,283 @@ docker compose \
   && echo "Compose validation passed"
 ```
 
-### Validate shell syntax
+### TEST requirements
 
-```bash
-bash -n scripts/sync-test-runtime.sh \
-  && echo "Script syntax passed"
+TEST must use:
+
+```yaml
+container_name: ignition-test
+hostname: ignition-test
 ```
 
-### Validate source JSON
-
-```bash
-failed=0
-
-while IFS= read -r file; do
-    if ! jq empty "$file" >/dev/null 2>&1; then
-        echo "INVALID JSON: $file"
-        failed=1
-    fi
-done < <(find config projects -type f -name '*.json' | sort)
-
-if [[ "$failed" -eq 0 ]]; then
-    echo "All source JSON files are valid"
-fi
-```
-
-### Check Git whitespace
-
-```bash
-git diff --check
-```
-
-Expected result: no output.
-
----
-
-## 12. Review what will be committed
-
-Check status:
-
-```bash
-git status --short
-```
-
-Expected approximately:
-
-```text
- M .gitignore
-?? .env.example
-?? compose/
-?? docs/
-?? scripts/
-```
-
-Inspect `.gitignore` changes:
-
-```bash
-git diff -- .gitignore
-```
-
-The file should include:
-
-```gitignore
-/runtime/
-/secrets/
-/deploy/
-/build/
-```
-
-It should already include:
-
-```gitignore
-.env
-.env.*
-!.env.example
-```
-
-Inspect the environment template:
-
-```bash
-cat .env.example
-```
-
-It should contain no passwords, for example:
-
-```dotenv
-IGNITION_VERSION=8.3.9
-TZ=Europe/Warsaw
-```
-
-Inspect Compose:
-
-```bash
-cat compose/compose.yml
-```
-
-Confirm the TEST port mapping:
+Port mapping:
 
 ```yaml
 ports:
   - "9088:8088"
 ```
 
-Confirm the runtime mounts:
+Runtime mounts:
 
 ```yaml
 - ../runtime/test/projects:/usr/local/bin/ignition/data/projects
 - ../runtime/test/config/resources:/usr/local/bin/ignition/data/config/resources
 ```
 
-Confirm the password is read from a file:
+Password file:
 
 ```yaml
 GATEWAY_ADMIN_PASSWORD_FILE: /run/secrets/gateway_admin_password
 ```
 
-There must be no literal password in Compose or `.env.example`.
+```yaml
+- ../secrets/test_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro
+```
+
+Named volume:
+
+```yaml
+ignition-test-data:
+  name: ignition-test-data
+```
+
+### DEV requirements
+
+DEV must use:
+
+```yaml
+container_name: ignition-dev
+hostname: ignition-dev
+```
+
+Port mapping:
+
+```yaml
+ports:
+  - "9188:8088"
+```
+
+Runtime mounts:
+
+```yaml
+- ../runtime/dev/projects:/usr/local/bin/ignition/data/projects
+- ../runtime/dev/config/resources:/usr/local/bin/ignition/data/config/resources
+```
+
+Password file:
+
+```yaml
+GATEWAY_ADMIN_PASSWORD_FILE: /run/secrets/gateway_admin_password
+```
+
+```yaml
+- ../secrets/dev_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro
+```
+
+Named volume:
+
+```yaml
+ignition-dev-data:
+  name: ignition-dev-data
+```
+
+TEST and DEV must not share:
+
+- administrator password files;
+- named data volumes;
+- project runtime directories;
+- configuration runtime directories;
+- Ubuntu host ports.
 
 ---
 
-## 13. Search for accidentally exposed secrets
+## 8. Verify both Gateways
 
-Run this basic guardrail search:
+List the containers:
 
 ```bash
-grep -RInE \
-  '(GATEWAY_ADMIN_PASSWORD:|password[[:space:]]*[:=][[:space:]]*[^$<{[:space:]]+)' \
-  .env.example compose scripts docs \
-  2>/dev/null
+docker ps \
+  --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 ```
 
-Expected result: no actual password value.
+Expected mappings:
 
-Confirm ignored local files are not tracked:
+```text
+ignition-test   ...   0.0.0.0:9088->8088/tcp
+ignition-dev    ...   0.0.0.0:9188->8088/tcp
+```
+
+Check health:
+
+```bash
+for container in ignition-test ignition-dev; do
+  docker inspect "$container" \
+    --format '{{.Name}} Status={{.State.Status}} Health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} OOMKilled={{.State.OOMKilled}} RestartCount={{.RestartCount}}'
+done
+```
+
+Verified result:
+
+```text
+/ignition-test Status=running Health=healthy OOMKilled=false RestartCount=0
+/ignition-dev Status=running Health=healthy OOMKilled=false RestartCount=0
+```
+
+Check the status endpoints:
+
+```bash
+echo "TEST:"
+curl -sS http://localhost:9088/StatusPing
+echo
+
+echo "DEV:"
+curl -sS http://localhost:9188/StatusPing
+echo
+```
+
+Expected for both:
+
+```json
+{"state":"RUNNING"}
+```
+
+---
+
+## 9. Verify restart persistence
+
+Restart TEST:
+
+```bash
+docker restart ignition-test
+sleep 90
+```
+
+Check TEST:
+
+```bash
+docker inspect ignition-test \
+  --format 'Status={{.State.Status}} Health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} OOMKilled={{.State.OOMKilled}} RestartCount={{.RestartCount}}'
+```
+
+Restart DEV:
+
+```bash
+docker restart ignition-dev
+sleep 90
+```
+
+Check DEV:
+
+```bash
+docker inspect ignition-dev \
+  --format 'Status={{.State.Status}} Health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} OOMKilled={{.State.OOMKilled}} RestartCount={{.RestartCount}}'
+```
+
+After restart, confirm on both Gateways:
+
+- commissioning remains complete;
+- the appropriate `admin` password still works;
+- the Gateway name remains correct;
+- `CICD_Test` remains available;
+- `StatusPing` returns `RUNNING`.
+
+---
+
+## 10. Current memory assessment
+
+The two Docker Gateways were measured at approximately:
+
+```text
+ignition-test: 1.144 GiB
+ignition-dev:  992.5 MiB
+```
+
+VM memory with both running and the native Ubuntu Gateway stopped:
+
+```text
+Total RAM:      5.3 GiB
+Available RAM:  1.3 GiB
+Swap used:      approximately 468 MiB
+```
+
+Both containers remained healthy and their memory use was stable during the observation period.
+
+### Current operating rule
+
+The native Ubuntu Ignition Gateway must remain stopped while both Docker Gateways are running.
+
+Check it with:
+
+```bash
+systemctl is-active Ignition-Gateway
+```
+
+Expected:
+
+```text
+inactive
+```
+
+Do not run this while both Docker Gateways are active:
+
+```bash
+sudo systemctl start Ignition-Gateway
+```
+
+### Current capacity decision
+
+The VM can support TEST and DEV simultaneously for this research lab, but it has limited spare capacity.
+
+Do not add yet:
+
+- a third Ignition Gateway;
+- PostgreSQL;
+- heavy Reporting workloads;
+- large Historian queries;
+- extensive module sets without additional measurement.
+
+Monitor memory with:
+
+```bash
+docker stats --no-stream ignition-test ignition-dev
+free -h
+swapon --show
+```
+
+Stop DEV if memory becomes unstable:
+
+```bash
+docker stop ignition-dev
+```
+
+---
+
+## 11. Confirm Git source remains isolated
+
+Check source directories:
+
+```bash
+git status --short -- projects config/resources
+```
+
+Expected: no output.
+
+Check ignored local data:
+
+```bash
+git status --short --ignored \
+  | grep -E '^!! (\.env$|runtime/|secrets/)'
+```
+
+Expected:
+
+```text
+!! .env
+!! runtime/
+!! secrets/
+```
+
+Confirm local secrets and runtime files are not tracked:
 
 ```bash
 git ls-files \
@@ -726,141 +576,336 @@ git ls-files \
   'runtime/**'
 ```
 
-Expected result: no output.
+Expected: no output.
 
 ---
 
-## 14. Measure memory before adding DEV
+## 12. Validate scripts and repository source
 
-Check TEST container memory:
-
-```bash
-docker stats --no-stream ignition-test
-```
-
-Check the VM:
+Validate shell scripts:
 
 ```bash
-free -h
-swapon --show
+bash -n scripts/sync-test-runtime.sh
+bash -n scripts/sync-dev-runtime.sh
 ```
 
-Check container state:
+Expected: no output.
+
+Validate source JSON:
 
 ```bash
-docker inspect ignition-test \
-  --format 'OOMKilled={{.State.OOMKilled}} RestartCount={{.RestartCount}}'
+failed=0
+
+while IFS= read -r file; do
+  if ! jq empty "$file" >/dev/null 2>&1; then
+    echo "INVALID JSON: $file"
+    failed=1
+  fi
+done < <(find config projects -type f -name '*.json' | sort)
+
+if [[ "$failed" -eq 0 ]]; then
+  echo "All source JSON files are valid"
+fi
 ```
 
-The restart count may include earlier failed starts, but it should no longer increase unexpectedly.
+Check Git whitespace:
 
-The native Ubuntu Gateway is also consuming VM memory. These measurements will determine whether:
+```bash
+git diff --check
+```
 
-- TEST and DEV can run while the native Ubuntu Gateway remains active; or
-- the native Ubuntu Gateway should be stopped while both Docker Gateways run.
+Expected: no output.
 
 ---
 
-## 15. Stage the intended files
+## 13. Check for accidentally exposed secrets
 
-Confirm the current branch:
+Search the new infrastructure files:
 
 ```bash
-git branch --show-current
+grep -RInE \
+  '(GATEWAY_ADMIN_PASSWORD:|password[[:space:]]*[:=][[:space:]]*[^$<{[:space:]]+)' \
+  .env.example compose scripts docs \
+  2>/dev/null
 ```
 
-Expected:
+There should be no actual password value.
+
+The following setting is expected and safe:
+
+```yaml
+GATEWAY_ADMIN_PASSWORD_FILE: /run/secrets/gateway_admin_password
+```
+
+Confirm passwords are ignored:
+
+```bash
+git check-ignore -v \
+  secrets/test_gateway_admin_password.txt \
+  secrets/dev_gateway_admin_password.txt
+```
+
+---
+
+## 14. Update `docs/docker-lab.md`
+
+The documentation should now describe both existing Docker Gateways, not a future DEV Gateway.
+
+Ensure it includes:
 
 ```text
-feature/docker-test-gateway
+Docker TEST: Ubuntu port 9088 -> container port 8088
+Docker DEV:  Ubuntu port 9188 -> container port 8088
 ```
 
-Stage only the intended files:
+It should also state:
+
+- DEV is a deployment target and should not be edited manually;
+- TEST and DEV have separate state and secrets;
+- the native Ubuntu Gateway remains stopped while both containers run;
+- PostgreSQL is postponed due to memory limits;
+- OPC UA security remains Gateway-local for now.
+
+---
+
+## 15. Review the DEV feature changes
+
+Check status:
+
+```bash
+git status --short
+```
+
+Before the DEV commit, the expected changes are:
+
+```text
+ M compose/compose.yml
+ M docs/docker-lab.md
+?? scripts/sync-dev-runtime.sh
+```
+
+Review Compose:
+
+```bash
+git diff -- compose/compose.yml
+```
+
+Review documentation:
+
+```bash
+git diff -- docs/docker-lab.md
+```
+
+Review the DEV script:
+
+```bash
+sed -n '1,260p' scripts/sync-dev-runtime.sh
+```
+
+---
+
+## 16. Stage the DEV files
 
 ```bash
 git add \
-  .gitignore \
-  .env.example \
   compose/compose.yml \
-  scripts/sync-test-runtime.sh \
-  docs/docker-lab.md
+  docs/docker-lab.md \
+  scripts/sync-dev-runtime.sh
 ```
 
-Review staged file names:
+Review staged names:
 
 ```bash
 git diff --cached --name-status
 ```
 
-Expected files:
+Expected:
 
 ```text
-.gitignore
-.env.example
-compose/compose.yml
-docs/docker-lab.md
-scripts/sync-test-runtime.sh
+M compose/compose.yml
+M docs/docker-lab.md
+A scripts/sync-dev-runtime.sh
 ```
 
-Review all staged content:
+Review the full staged change:
 
 ```bash
 git diff --cached
 ```
 
-Carefully verify that the staged content contains no password.
+Verify that it contains no passwords or runtime files.
 
 ---
 
-## 16. Commit the TEST milestone
+## 17. Commit the DEV Gateway milestone
+
+Commit:
 
 ```bash
-git commit -m "chore: add containerized Ignition TEST gateway"
+git commit -m "chore: add containerized Ignition DEV gateway"
 ```
 
-Check the commit:
+Push:
 
 ```bash
-git log -1 --oneline --decorate
+git push -u origin feature/docker-dev-gateway
+```
+
+Verify:
+
+```bash
+git status
+git log -2 --oneline --decorate
+```
+
+Expected:
+
+- the working tree is clean;
+- the branch is synchronized with `origin/feature/docker-dev-gateway`;
+- the new DEV commit is above the TEST milestone in history.
+
+---
+
+## 18. Create the DEV pull request
+
+Create a GitHub Pull Request:
+
+```text
+feature/docker-dev-gateway -> master
+```
+
+Suggested title:
+
+```text
+Add containerized Ignition DEV Gateway
+```
+
+Suggested description:
+
+```markdown
+## Summary
+
+Adds a separate Ignition 8.3.9 DEV Gateway as the future automated deployment target.
+
+## Included
+
+- separate DEV container;
+- separate named data volume;
+- separate administrator password file;
+- separate project and configuration runtime directories;
+- DEV runtime synchronization script;
+- Ubuntu port 9188;
+- updated lab documentation.
+
+## Validation
+
+- TEST healthy;
+- DEV healthy;
+- OOM killed: false for both;
+- restart count: 0 for both;
+- TEST status endpoint: RUNNING;
+- DEV status endpoint: RUNNING;
+- restart persistence verified;
+- Git source directories remain unchanged.
+
+## Resource note
+
+The native Ubuntu Gateway must remain stopped while both Docker Gateways run.
+```
+
+Do not merge until the changes have been reviewed.
+
+---
+
+## 19. Daily operating commands
+
+Show both services:
+
+```bash
+docker compose --env-file .env -f compose/compose.yml ps
+```
+
+Start both:
+
+```bash
+docker compose --env-file .env -f compose/compose.yml up -d
+```
+
+Stop both:
+
+```bash
+docker compose --env-file .env -f compose/compose.yml stop
+```
+
+Check health:
+
+```bash
+for container in ignition-test ignition-dev; do
+  docker inspect "$container" \
+    --format '{{.Name}} Status={{.State.Status}} Health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} OOMKilled={{.State.OOMKilled}}'
+done
+```
+
+Check endpoints:
+
+```bash
+curl -fsS http://localhost:9088/StatusPing
+echo
+curl -fsS http://localhost:9188/StatusPing
+echo
+```
+
+Check memory:
+
+```bash
+docker stats --no-stream ignition-test ignition-dev
+free -h
+swapon --show
 ```
 
 ---
 
-## 17. Push the feature branch
+## 20. Final diagnostic block
+
+Run after committing and pushing DEV:
 
 ```bash
-git push -u origin feature/docker-test-gateway
-```
-
-Do not merge into `master` yet.
-
----
-
-## 18. Final diagnostic block
-
-Run:
-
-```bash
-echo "=== LAST COMMIT ==="
-git log -1 --oneline --decorate
+echo "=== BRANCH AND COMMIT ==="
+git branch --show-current
+git log -2 --oneline --decorate
 
 echo
 echo "=== WORKING TREE ==="
 git status --short
 
 echo
-echo "=== TEST HEALTH ==="
-docker inspect ignition-test \
-  --format 'Status={{.State.Status}} Health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} OOMKilled={{.State.OOMKilled}} RestartCount={{.RestartCount}}'
+echo "=== NATIVE UBUNTU GATEWAY ==="
+systemctl is-active Ignition-Gateway
 
 echo
-echo "=== TEST STATUS PING ==="
+echo "=== CONTAINERS ==="
+docker ps \
+  --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+
+echo
+echo "=== HEALTH ==="
+for container in ignition-test ignition-dev; do
+  docker inspect "$container" \
+    --format '{{.Name}} Status={{.State.Status}} Health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} OOMKilled={{.State.OOMKilled}} RestartCount={{.RestartCount}}'
+done
+
+echo
+echo "=== STATUS PING ==="
+echo "TEST:"
 curl -sS http://localhost:9088/StatusPing
+echo
+echo "DEV:"
+curl -sS http://localhost:9188/StatusPing
 echo
 
 echo
 echo "=== MEMORY ==="
-docker stats --no-stream ignition-test
+docker stats --no-stream ignition-test ignition-dev
 free -h
 swapon --show
 
@@ -871,14 +916,16 @@ git status --short -- projects config/resources
 
 ## Expected final state
 
-- The feature branch has been pushed.
-- The working tree is clean.
-- TEST is `running` and `healthy`.
-- `OOMKilled=false`.
-- `StatusPing` returns `RUNNING`.
-- The original `projects/` and `config/resources/` source directories show no runtime changes.
-- `.env`, `secrets/`, and `runtime/` remain ignored.
-- `CICD_Test` opens in the Docker TEST Gateway on Ubuntu at `http://localhost:9088`.
-- The admin account still works after a restart.
+- TEST and DEV are both running and healthy.
+- Both containers report `OOMKilled=false`.
+- Both status endpoints report `RUNNING`.
+- TEST uses Ubuntu port `9088`.
+- DEV uses Ubuntu port `9188`.
+- TEST and DEV use separate volumes, runtime directories, and password files.
+- The native Ubuntu Gateway is inactive.
+- Available memory remains around 1.3 GiB during idle operation.
+- Swap use remains stable around 468 MiB rather than continuously increasing.
+- Git-controlled `projects/` and `config/resources/` remain unchanged by runtime activity.
+- The DEV feature branch is pushed and ready for review.
 
-Do not add DEV until memory usage has been reviewed.
+The next milestone is to define the Git branch and promotion workflow, then automate deployment to DEV through a self-hosted GitHub Actions runner.
