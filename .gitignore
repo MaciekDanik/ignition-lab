@@ -77,3 +77,13 @@ config/resources/core/ignition/tag-group/System/
 # Generated logging configuration
 log4j.properties
 logback.xml
+
+# Local Docker lab state
+/runtime/
+/secrets/
+
+# Generated deployment directories
+/deploy/
+
+# Local build output
+/build/

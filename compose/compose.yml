@@ -1,0 +1,53 @@
+name: ignition-lab
+
+services:
+  ignition-test:
+    image: inductiveautomation/ignition:${IGNITION_VERSION:-8.3.9}
+    container_name: ignition-test
+    hostname: ignition-test
+    restart: unless-stopped
+
+    ports:
+      - "9088:8088"
+
+    environment:
+      ACCEPT_IGNITION_EULA: "Y"
+      GATEWAY_ADMIN_USERNAME: admin
+      GATEWAY_ADMIN_PASSWORD_FILE: /run/secrets/gateway_admin_password
+      IGNITION_EDITION: standard
+      TZ: ${TZ:-Europe/Warsaw}
+
+    command:
+      - -n
+      - ignition-test
+      - -m
+      - "1536"
+
+    volumes:
+      # Gateway runtime state, including its internal database.
+      - ignition-test-data:/usr/local/bin/ignition/data
+
+      # Repository-managed Ignition 8.3 resources.
+      - ../runtime/test/projects:/usr/local/bin/ignition/data/projects
+      - ../runtime/test/config/resources:/usr/local/bin/ignition/data/config/resources
+
+      # Local password file, never committed.
+      - ../secrets/test_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro
+
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -fsS
+        - http://localhost:8088/StatusPing
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+    mem_limit: 2200m
+    cpus: 2.0
+
+volumes:
+  ignition-test-data:
+    name: ignition-test-data
