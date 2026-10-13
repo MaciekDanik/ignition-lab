@@ -1,0 +1,204 @@
+name: Deploy Ignition DEV
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-ignition-dev
+  cancel-in-progress: false
+
+jobs:
+  validate-source:
+    name: Validate Source Before DEV Deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out approved develop commit
+        uses: actions/checkout@v4
+
+      - name: Validate repository
+        run: ./scripts/validate-repository.sh
+
+      - name: Package projects
+        run: ./scripts/package-projects.sh
+
+      - name: Upload validated project packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: ignition-dev-candidate-${{ github.sha }}
+          path: build/projects/*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy-dev:
+    name: Deploy to Ignition DEV
+    needs:
+      - validate-source
+
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - ignition-lab
+
+    timeout-minutes: 15
+
+    environment:
+      name: ignition-dev
+      url: http://localhost:9188
+
+    steps:
+      - name: Check out approved develop commit
+        uses: actions/checkout@v4
+
+      - name: Show deployment identity
+        run: |
+          echo "Runner: $RUNNER_NAME"
+          echo "User: $(whoami)"
+          echo "Commit: $GITHUB_SHA"
+          echo "Branch: $GITHUB_REF_NAME"
+          echo "Workspace: $GITHUB_WORKSPACE"
+
+      - name: Validate deployment prerequisites
+        run: |
+          test "$GITHUB_REF_NAME" = "develop"
+          test -x ./scripts/deploy-dev.sh
+          test -f ./compose/compose.yml
+          test -f ./projects/CICD_Test/project.json
+
+          test -f /srv/ignition-lab/.env
+          test -d /srv/ignition-lab/runtime/dev/projects
+          test -d /srv/ignition-lab/secrets
+          test -d /srv/ignition-lab/backups/dev
+
+          docker inspect ignition-test >/dev/null
+          docker inspect ignition-dev >/dev/null
+
+      - name: Update fixed release directory
+        run: |
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.env' \
+            --exclude='runtime/' \
+            --exclude='secrets/' \
+            --exclude='build/' \
+            --exclude='.resources/' \
+            --exclude='**/.resources/' \
+            "$GITHUB_WORKSPACE/" \
+            /srv/ignition-lab/release/
+
+          ln -sfn \
+            /srv/ignition-lab/runtime \
+            /srv/ignition-lab/release/runtime
+
+          ln -sfn \
+            /srv/ignition-lab/secrets \
+            /srv/ignition-lab/release/secrets
+
+          ln -sfn \
+            /srv/ignition-lab/.env \
+            /srv/ignition-lab/release/.env
+
+      - name: Verify fixed release
+        run: |
+          test -x /srv/ignition-lab/release/scripts/deploy-dev.sh
+          test -f /srv/ignition-lab/release/compose/compose.yml
+          test -f /srv/ignition-lab/release/projects/CICD_Test/project.json
+
+          if find /srv/ignition-lab/release \
+            -type d \
+            -name '.resources' \
+            -print \
+            -quit |
+            grep -q .
+          then
+            echo "ERROR: generated .resources directory exists in release"
+            exit 1
+          fi
+
+          docker compose \
+            --env-file /srv/ignition-lab/.env \
+            -f /srv/ignition-lab/release/compose/compose.yml \
+            config >/dev/null
+
+      - name: Deploy projects to DEV
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: /srv/ignition-lab/release/scripts/deploy-dev.sh
+
+      - name: Verify DEV after deployment
+        run: |
+          state="$(docker inspect ignition-dev \
+            --format '{{.State.Status}}')"
+
+          health="$(docker inspect ignition-dev \
+            --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}')"
+
+          oom="$(docker inspect ignition-dev \
+            --format '{{.State.OOMKilled}}')"
+
+          echo "DEV state: $state"
+          echo "DEV health: $health"
+          echo "DEV OOM-killed: $oom"
+
+          test "$state" = "running"
+          test "$health" = "healthy"
+          test "$oom" = "false"
+
+          curl -fsS http://localhost:9188/StatusPing
+          echo
+
+      - name: Confirm TEST remains healthy
+        run: |
+          state="$(docker inspect ignition-test \
+            --format '{{.State.Status}}')"
+
+          health="$(docker inspect ignition-test \
+            --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}')"
+
+          oom="$(docker inspect ignition-test \
+            --format '{{.State.OOMKilled}}')"
+
+          echo "TEST state: $state"
+          echo "TEST health: $health"
+          echo "TEST OOM-killed: $oom"
+
+          test "$state" = "running"
+          test "$health" = "healthy"
+          test "$oom" = "false"
+
+      - name: Show deployment record
+        if: always()
+        run: |
+          echo "Last successful deployment:"
+
+          if test -f /srv/ignition-lab/last-successful-dev-deployment.txt
+          then
+            cat /srv/ignition-lab/last-successful-dev-deployment.txt
+          else
+            echo "No successful deployment marker was found."
+          fi
+
+          echo
+          echo "Recent DEV backups:"
+
+          find /srv/ignition-lab/backups/dev \
+            -mindepth 1 \
+            -maxdepth 1 \
+            -type d \
+            -printf '%f\n' |
+            sort |
+            tail -10
+
+      - name: Show resource usage
+        if: always()
+        run: |
+          docker stats --no-stream ignition-test ignition-dev || true
+          free -h
+          swapon --show

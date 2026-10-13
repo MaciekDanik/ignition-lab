@@ -28,6 +28,8 @@ REQUIRED_PATHS=(
     "scripts/sync-test-runtime.sh"
     "scripts/sync-dev-runtime.sh"
     "scripts/extract-test-projects.sh"
+    "scripts/deploy-dev.sh"
+    ".github/workflows/deploy-dev.yml"
     ".env.example"
 )
 
