@@ -1,0 +1,52 @@
+name: Test Self-Hosted Runner
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-runner:
+    name: Test Ignition Lab Runner
+
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - ignition-lab
+
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show runner identity
+        run: |
+          echo "Runner name: $RUNNER_NAME"
+          echo "Runner OS: $RUNNER_OS"
+          echo "Runner architecture: $RUNNER_ARCH"
+          echo "User: $(whoami)"
+          echo "Hostname: $(hostname)"
+          echo "Working directory: $PWD"
+
+      - name: Show checked-out commit
+        run: |
+          git status --short
+          git log -1 --oneline
+
+      - name: Check system resources
+        run: |
+          free -h
+          swapon --show
+          df -h /
+
+      - name: Confirm Docker access is not granted yet
+        run: |
+          if docker ps >/dev/null 2>&1; then
+            echo "ERROR: Runner unexpectedly has Docker access."
+            exit 1
+          fi
+
+          echo "Runner correctly has no Docker access yet."
