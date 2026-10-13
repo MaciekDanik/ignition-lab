@@ -15,11 +15,11 @@
         "position": {
           "height": 69,
           "width": 250,
-          "x": 272,
-          "y": 111
+          "x": 32,
+          "y": 89
         },
         "props": {
-          "text": "Second Commit label"
+          "text": "Round Trip Test"
         },
         "type": "ia.display.label"
       },
@@ -30,8 +30,8 @@
         "position": {
           "height": 69,
           "width": 250,
-          "x": 323,
-          "y": 231
+          "x": 205,
+          "y": 243
         },
         "propConfig": {
           "props.text": {
@@ -58,17 +58,23 @@
         "position": {
           "height": 69,
           "width": 250,
-          "x": 530,
+          "x": 395,
           "y": 89
         },
         "props": {
-          "text": "This is from ubuntu"
+          "text": "Change made form designer on windows connected to Docker GW"
         },
         "type": "ia.display.label"
       }
     ],
     "meta": {
       "name": "root"
+    },
+    "props": {
+      "style": {
+        "backgroundColor": "#F0FFFF",
+        "padding": "16px"
+      }
     },
     "type": "ia.container.coord"
   }
