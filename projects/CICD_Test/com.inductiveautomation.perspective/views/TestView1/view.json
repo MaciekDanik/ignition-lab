@@ -65,6 +65,22 @@
           "text": "Change made form designer on windows connected to Docker GW"
         },
         "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Icon"
+        },
+        "position": {
+          "height": 120,
+          "width": 126,
+          "x": 350,
+          "y": 217.5
+        },
+        "props": {
+          "color": "#5900B5",
+          "path": "material/insert_emoticon"
+        },
+        "type": "ia.display.icon"
       }
     ],
     "meta": {
