@@ -1,0 +1,53 @@
+name: Validate Ignition Repository
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+
+  push:
+    branches:
+      - develop
+      - "feature/**"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-ignition-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-ignition-source:
+    name: Validate Ignition Source
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show tool versions
+        run: |
+          git --version
+          jq --version
+          docker --version
+          docker compose version
+          zip -v | head -2
+
+      - name: Validate repository
+        run: ./scripts/validate-repository.sh
+
+      - name: Package Ignition projects
+        run: ./scripts/package-projects.sh
+
+      - name: Upload project packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: ignition-projects-${{ github.sha }}
+          path: build/projects/*.zip
+          if-no-files-found: error
+          retention-days: 14
