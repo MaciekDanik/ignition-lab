@@ -3,10 +3,6 @@ name: Test Self-Hosted Runner
 on:
   workflow_dispatch:
 
-  push:
-    branches:
-      - feature/self-hosted-runner
-
 permissions:
   contents: read
 
