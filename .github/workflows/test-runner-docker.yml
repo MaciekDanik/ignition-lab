@@ -1,0 +1,94 @@
+name: Test Runner Docker Access
+
+on:
+  push:
+    branches:
+      - feature/runner-docker-verification
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-docker-access:
+    name: Test Runner Docker Access
+
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - ignition-lab
+
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show runner identity
+        run: |
+          echo "Runner: $RUNNER_NAME"
+          echo "User: $(whoami)"
+          echo "Groups: $(id -nG)"
+          echo "Hostname: $(hostname)"
+
+      - name: Verify read-only Docker commands
+        run: |
+          docker version
+          docker compose version
+
+          docker ps \
+            --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+
+      - name: Verify TEST health
+        run: |
+          state="$(docker inspect ignition-test \
+            --format '{{.State.Status}}')"
+
+          health="$(docker inspect ignition-test \
+            --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}')"
+
+          oom="$(docker inspect ignition-test \
+            --format '{{.State.OOMKilled}}')"
+
+          echo "TEST state: $state"
+          echo "TEST health: $health"
+          echo "TEST OOM-killed: $oom"
+
+          [[ "$state" == "running" ]]
+          [[ "$health" == "healthy" ]]
+          [[ "$oom" == "false" ]]
+
+      - name: Verify DEV health
+        run: |
+          state="$(docker inspect ignition-dev \
+            --format '{{.State.Status}}')"
+
+          health="$(docker inspect ignition-dev \
+            --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}')"
+
+          oom="$(docker inspect ignition-dev \
+            --format '{{.State.OOMKilled}}')"
+
+          echo "DEV state: $state"
+          echo "DEV health: $health"
+          echo "DEV OOM-killed: $oom"
+
+          [[ "$state" == "running" ]]
+          [[ "$health" == "healthy" ]]
+          [[ "$oom" == "false" ]]
+
+      - name: Verify Gateway endpoints
+        run: |
+          curl -fsS http://localhost:9088/StatusPing
+          echo
+
+          curl -fsS http://localhost:9188/StatusPing
+          echo
+
+      - name: Show resource usage
+        run: |
+          docker stats --no-stream ignition-test ignition-dev
+          free -h
+          swapon --show
