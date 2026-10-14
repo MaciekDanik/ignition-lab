@@ -130,6 +130,7 @@ jobs:
       - name: Deploy projects to DEV
         env:
           GITHUB_SHA: ${{ github.sha }}
+          DEPLOY_MODE: scan
         run: /srv/ignition-lab/release/scripts/deploy-dev.sh
 
       - name: Verify DEV after deployment
