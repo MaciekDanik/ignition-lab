@@ -19,7 +19,7 @@
           "y": 89
         },
         "props": {
-          "text": "Round Trip Test"
+          "text": "Final auto deploy test test after fail_final_final"
         },
         "type": "ia.display.label"
       },
@@ -77,7 +77,7 @@
           "y": 217.5
         },
         "props": {
-          "color": "#5900B5",
+          "color": "#F400FF",
           "path": "material/insert_emoticon"
         },
         "type": "ia.display.icon"
@@ -93,8 +93,8 @@
           "y": 216
         },
         "props": {
-          "color": "#FF0000",
-          "path": "material/bug_report"
+          "color": "#00A9A2",
+          "path": "material/campaign"
         },
         "type": "ia.display.icon"
       }
