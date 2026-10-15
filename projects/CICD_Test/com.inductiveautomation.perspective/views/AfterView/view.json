@@ -46,7 +46,7 @@
                   "grow": 1
                 },
                 "props": {
-                  "color": "#4F0089",
+                  "color": "#00AB11",
                   "path": "material/fingerprint"
                 },
                 "type": "ia.display.icon"
