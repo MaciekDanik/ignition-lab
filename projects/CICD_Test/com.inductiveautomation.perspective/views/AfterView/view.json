@@ -46,8 +46,8 @@
                   "grow": 1
                 },
                 "props": {
-                  "color": "#628900",
-                  "path": "material/face"
+                  "color": "#4F0089",
+                  "path": "material/fingerprint"
                 },
                 "type": "ia.display.icon"
               }
@@ -64,16 +64,36 @@
             "children": [
               {
                 "meta": {
-                  "name": "Icon"
+                  "name": "Label"
                 },
                 "position": {
                   "grow": 1
                 },
-                "props": {
-                  "color": "#FF0000",
-                  "path": "material/help"
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "now(1000)"
+                      },
+                      "transforms": [
+                        {
+                          "code": "\ttext \u003d testScript.printSecondAscii(value)\n\treturn text",
+                          "type": "script"
+                        }
+                      ],
+                      "type": "expr"
+                    }
+                  }
                 },
-                "type": "ia.display.icon"
+                "props": {
+                  "style": {
+                    "color": "#000000",
+                    "fontFamily": "Noto Sans",
+                    "fontSize": "28px",
+                    "textAlign": "center"
+                  }
+                },
+                "type": "ia.display.label"
               }
             ],
             "meta": {
