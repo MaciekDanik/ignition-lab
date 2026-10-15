@@ -62,7 +62,7 @@
           "y": 89
         },
         "props": {
-          "text": "Change made form designer on windows connected to Docker GW"
+          "text": "Extraction_TEST_15-10-26"
         },
         "type": "ia.display.label"
       },
@@ -79,6 +79,22 @@
         "props": {
           "color": "#5900B5",
           "path": "material/insert_emoticon"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "meta": {
+          "name": "Icon_0"
+        },
+        "position": {
+          "height": 120,
+          "width": 126,
+          "x": 502,
+          "y": 216
+        },
+        "props": {
+          "color": "#FF0000",
+          "path": "material/bug_report"
         },
         "type": "ia.display.icon"
       }
