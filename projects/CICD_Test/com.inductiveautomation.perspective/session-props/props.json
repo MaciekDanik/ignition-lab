@@ -63,11 +63,11 @@
     }
   },
   "props": {
-    "address": "127.0.0.1",
+    "address": "10.0.2.2",
     "device": {},
     "geolocation": {},
     "locale": "en-US",
     "offline": {},
-    "timeZoneId": "Etc/UTC"
+    "timeZoneId": "Europe/Warsaw"
   }
 }

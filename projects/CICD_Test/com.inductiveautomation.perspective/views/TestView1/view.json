@@ -15,11 +15,11 @@
         "position": {
           "height": 69,
           "width": 250,
-          "x": 272,
-          "y": 111
+          "x": 32,
+          "y": 89
         },
         "props": {
-          "text": "Second Commit label"
+          "text": "Final auto deploy test test after fail_final_final"
         },
         "type": "ia.display.label"
       },
@@ -30,8 +30,8 @@
         "position": {
           "height": 69,
           "width": 250,
-          "x": 323,
-          "y": 231
+          "x": 205,
+          "y": 243
         },
         "propConfig": {
           "props.text": {
@@ -58,17 +58,55 @@
         "position": {
           "height": 69,
           "width": 250,
-          "x": 530,
+          "x": 395,
           "y": 89
         },
         "props": {
-          "text": "This is from ubuntu"
+          "text": "Extraction_TEST_15-10-26"
         },
         "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Icon"
+        },
+        "position": {
+          "height": 120,
+          "width": 126,
+          "x": 350,
+          "y": 217.5
+        },
+        "props": {
+          "color": "#F400FF",
+          "path": "material/insert_emoticon"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "meta": {
+          "name": "Icon_0"
+        },
+        "position": {
+          "height": 120,
+          "width": 126,
+          "x": 502,
+          "y": 216
+        },
+        "props": {
+          "color": "#00A9A2",
+          "path": "material/campaign"
+        },
+        "type": "ia.display.icon"
       }
     ],
     "meta": {
       "name": "root"
+    },
+    "props": {
+      "style": {
+        "backgroundColor": "#F0FFFF",
+        "padding": "16px"
+      }
     },
     "type": "ia.container.coord"
   }
