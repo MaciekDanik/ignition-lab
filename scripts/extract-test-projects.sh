@@ -6,7 +6,9 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 CONTAINER_NAME="ignition-test"
-
+TEST_RUNTIME="/srv/ignition-lab/runtime/test/projects"
+SOURCE_PROJECTS="$REPO_ROOT/projects"
+    
 echo "Extracting TEST project resources into Git source..."
 echo
 
@@ -14,19 +16,19 @@ if docker ps --format '{{.Names}}' | grep -qx "$CONTAINER_NAME"; then
     echo "ERROR: $CONTAINER_NAME is currently running."
     echo
     echo "Stop TEST before extracting project resources:"
-    echo "  docker compose --env-file .env -f compose/compose.yml stop ignition-test"
+    echo "  docker compose --env-file /srv/ignition-lab/.env -f /srv/ignition-lab/release/compose/compose.yml stop ignition-test"
     exit 1
 fi
 
-if [[ ! -d runtime/test/projects ]]; then
+if [[ ! -d "$TEST_RUNTIME" ]]; then
     echo "ERROR: TEST runtime projects directory does not exist:"
-    echo "  runtime/test/projects"
+    echo "  $TEST_RUNTIME"
     exit 1
 fi
 
-if [[ ! -d projects ]]; then
+if [[ ! -d "$SOURCE_PROJECTS" ]]; then
     echo "ERROR: Git project source directory does not exist:"
-    echo "  projects"
+    echo "  $SOURCE_PROJECTS"
     exit 1
 fi
 
@@ -40,10 +42,7 @@ fi
 
 echo "Synchronizing TEST project resources..."
 
-rsync -a --delete \
-    --exclude='.resources/' \
-    runtime/test/projects/ \
-    projects/
+rsync -a --delete --exclude='.resources/' "$TEST_RUNTIME/" "$SOURCE_PROJECTS/"
 
 echo
 echo "Project extraction complete."
