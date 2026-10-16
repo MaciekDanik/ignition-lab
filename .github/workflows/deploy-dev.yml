@@ -133,10 +133,10 @@ jobs:
           DEPLOY_MODE: scan
         run: /srv/ignition-lab/release/scripts/deploy-dev.sh
 
-      - name: Deploy devce resources to DEV
+      - name: Deploy managed Gateway resources to DEV
         env:
           GITHUB_SHA: ${{ github.sha }}
-        run: /srv/ignition-lab/release/scripts/deploy-dev-devices.sh
+        run: /srv/ignition-lab/release/scripts/deploy-dev-config.sh
 
       - name: Verify DEV after deployment
         run: |
