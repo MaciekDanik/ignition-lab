@@ -1,2 +1,3 @@
 Time Interval, Browse Path, Value Source, Data Type
-"0","tags/test1","ramp(0,100,10)","Double"
+"0","tags/test1","ramp(0.0, 100.0, 10.0, true)","Double"
+"0","tags/test2","25","Int16"
