@@ -1,7 +1,7 @@
 [
   {
     "dataType": "Float8",
-    "name": "New Tag",
+    "name": "TAG_NAME",
     "opcItemPath": "ns\u003d1;s\u003d[CICD_Simulator]tags/test1",
     "opcServer": "Ignition OPC UA Server",
     "tagType": "AtomicTag",
