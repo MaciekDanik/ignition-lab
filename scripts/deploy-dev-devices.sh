@@ -155,13 +155,22 @@ scan_config || fail "DEV configuration scan failed."
 sleep 5
 verify_gateway || fail "DEV failed health verification after configuration scan."
 
-if rsync -ain --delete \
+log "Verifying deployed device content..."
+
+if rsync -rcni --delete \
     --exclude='.resources/' \
     "$GIT_DEVICES/" \
     "$DEV_DEVICES/" \
     | grep -q .
 then
-    fail "DEV device filesystem differs from the Git-managed source after deployment."
+    log "Differences detected between Git and DEV device content:"
+
+    rsync -rcni --delete \
+        --exclude='.resources/' \
+        "$GIT_DEVICES/" \
+        "$DEV_DEVICES/"
+
+    fail "DEV device content differs from the Git-managed source after deployment."
 fi
 
 cat > "$DEPLOY_ROOT/last-successful-dev-config-deployment.json" <<METADATA

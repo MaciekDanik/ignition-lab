@@ -31,6 +31,9 @@ REQUIRED_PATHS=(
     "scripts/deploy-dev.sh"
     ".github/workflows/deploy-dev.yml"
     ".env.example"
+    "config/deployable/core/com.inductiveautomation.opcua/device"
+    "scripts/extract-test-devices.sh"
+    "scripts/deploy-dev-devices.sh"
 )
 
 for path in "${REQUIRED_PATHS[@]}"; do

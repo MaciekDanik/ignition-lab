@@ -49,14 +49,15 @@ while IFS= read -r -d '' file; do
     jq empty "$file" >/dev/null
 done < <(find "$GIT_DEVICES" -type f -name '*.json' -print0)
 
-log "Checking whether TEST changed during extraction..."
-if sudo rsync -ain --delete \
+log "Checking extracted device content..."
+
+if sudo rsync -rcni --delete \
     --exclude='.resources/' \
     "$TEST_DEVICES/" \
     "$GIT_DEVICES/" \
     | grep -q .
 then
-    fail "TEST device resources changed during extraction. Run the extraction again after Gateway writes settle."
+    fail "TEST device content changed during extraction. Run the extraction again after Gateway writes settle."
 fi
 
 log "Device extraction completed."
