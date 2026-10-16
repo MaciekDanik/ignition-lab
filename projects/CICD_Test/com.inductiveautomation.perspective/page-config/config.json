@@ -2,7 +2,7 @@
   "pages": {
     "/": {
       "title": "",
-      "viewPath": "TestView1"
+      "viewPath": "AfterView"
     }
   },
   "sharedDocks": {
