@@ -34,6 +34,7 @@ REQUIRED_PATHS=(
     "config/deployable/core/com.inductiveautomation.opcua/device"
     "config/deployable/core/ignition/tag-definition/default"
     "config/deployable/core/ignition/tag-type-definition/default"
+    "config/deployable/core/ignition/database-connection"
     "scripts/extract-test-config.sh"
     "scripts/deploy-dev-config.sh"
 )
