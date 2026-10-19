@@ -8,9 +8,11 @@ GIT_CONFIG_ROOT="$REPO_ROOT/config/deployable"
 
 MANAGED_PATHS=(
     "core/com.inductiveautomation.opcua/device"
-    "core/ignition/tag-definition/default"
-    "core/ignition/tag-type-definition/default"
+    "core/ignition/tag-definition"
+    "core/ignition/tag-type-definition"
     "core/ignition/database-connection"
+    "core/ignition/images"
+    "core/ignition/tag-provider"
 )
 
 log() {
@@ -63,6 +65,7 @@ for relative_path in "${MANAGED_PATHS[@]}"; do
     log "Exporting TEST scope into Git..."
     rsync -a --delete \
         --exclude='.resources/' \
+        --exclude='System/' \
         "$source_path/" \
         "$destination_path/"
 
@@ -72,6 +75,7 @@ for relative_path in "${MANAGED_PATHS[@]}"; do
     differences="$(
         rsync -rcni --delete \
             --exclude='.resources/' \
+            --exclude='System/' \
             "$source_path/" \
             "$destination_path/"
     )"

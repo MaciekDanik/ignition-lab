@@ -1,0 +1,9 @@
+[
+  {
+    "dataType": "String",
+    "defaultValue": "Made on TEST in CICD_Provider",
+    "name": "NewProviderTestTag",
+    "tagType": "AtomicTag",
+    "valueSource": "memory"
+  }
+]
