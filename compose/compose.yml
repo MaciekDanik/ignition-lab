@@ -7,6 +7,10 @@ services:
     hostname: ignition-test
     restart: unless-stopped
 
+    depends_on:
+      ignition-postgres:
+        condition: service_healthy
+
     ports:
       - "9088:8088"
 
@@ -54,6 +58,10 @@ services:
     hostname: ignition-dev
     restart: unless-stopped
 
+    depends_on:
+      ignition-postgres:
+        condition: service_healthy
+
     ports:
       - "9188:8088"
 
@@ -95,9 +103,43 @@ services:
     mem_limit: 2200m
     cpus: 2.0
 
+  ignition-postgres:
+    image: postgres:16.15-bookworm
+    container_name: ignition-postgres
+    hostname: ignition-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ignition_admin
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+      TZ: ${TZ:-Europe/Warsaw}
+
+    volumes:
+      - ignition-postgres-data:/var/lib/postgresql/data
+      - ./postgres-init/01-create-ignition-databases.sh:/docker-entrypoint-initdb.d/01-create-ignition-databases.sh:ro
+      - ../secrets/postgres_admin_password.txt:/run/secrets/postgres_admin_password:ro
+      - ../secrets/postgres_test_password.txt:/run/secrets/postgres_test_password:ro
+      - ../secrets/postgres_dev_password.txt:/run/secrets/postgres_dev_password:ro
+
+    healthcheck:
+      test: 
+        - CMD-SHELL
+        - pg_isready -U ignition_admin -d postgres
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+    mem_limit: 768m
+    cpus: 1.0
+
 volumes:
   ignition-test-data:
     name: ignition-test-data
   
   ignition-dev-data:
     name: ignition-dev-data
+
+  ignition-postgres-data:
+    name: ignition-postgres-data
