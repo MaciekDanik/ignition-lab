@@ -178,8 +178,7 @@ deploy_managed_paths() {
 
             apply_permissions "$destination_path"
         else
-            log "Git scope is absent; removing DEV scope if present."
-            rm -rf "$destination_path"
+            log "Git scope is absent; leaving DEV scope unchanged."
         fi
     done
 }
@@ -238,9 +237,6 @@ verify_managed_paths() {
                 printf '%s\n' "$differences"
                 return 1
             fi
-        elif [[ -e "$destination_path" ]]; then
-            log "DEV scope exists although Git scope is absent: $relative_path"
-            return 1
         fi
     done
 }
