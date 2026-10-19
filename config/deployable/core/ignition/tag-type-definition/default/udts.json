@@ -1,0 +1,15 @@
+[
+  {
+    "name": "Test_UDT",
+    "tagType": "UdtType",
+    "typeId": null,
+    "tags": [
+      {
+        "name": "tag1",
+        "tagType": "AtomicTag",
+        "value": 69,
+        "valueSource": "memory"
+      }
+    ]
+  }
+]
