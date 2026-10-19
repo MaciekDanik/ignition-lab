@@ -19,9 +19,11 @@ LOCK_FILE="$DEPLOY_ROOT/deploy-dev-config.lock"
 
 MANAGED_PATHS=(
     "core/com.inductiveautomation.opcua/device"
-    "core/ignition/tag-definition/default"
-    "core/ignition/tag-type-definition/default"
+    "core/ignition/tag-definition"
+    "core/ignition/tag-type-definition"
     "core/ignition/database-connection"
+    "core/ignition/images"
+    "core/ignition/tag-provider"
 )
 
 DEPLOYMENT_ID="${GITHUB_SHA:-manual}-${GITHUB_RUN_ID:-local}-${GITHUB_RUN_ATTEMPT:-1}-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -174,6 +176,7 @@ deploy_managed_paths() {
 
             rsync -a --delete \
                 --exclude='.resources/' \
+                --exclude='System/' \
                 "$source_path/" \
                 "$destination_path/"
 
@@ -229,6 +232,7 @@ verify_managed_paths() {
             differences="$(
                 rsync -rcni --delete \
                     --exclude='.resources/' \
+                    --exclude='System/' \
                     "$source_path/" \
                     "$destination_path/"
             )"
@@ -304,9 +308,11 @@ cat > "$DEPLOY_ROOT/last-successful-dev-config-deployment.json" <<METADATA
   "commit": "${GITHUB_SHA:-manual}",
   "scopes": [
     "core/com.inductiveautomation.opcua/device",
-    "core/ignition/tag-definition/default",
-    "core/ignition/tag-type-definition/default",
-    "core/ignition/database-connection"
+    "core/ignition/tag-definition",
+    "core/ignition/tag-type-definition",
+    "core/ignition/database-connection",
+    "core/ignition/images",
+    "core/ignition/tag-provider"
   ],
   "completedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 }
