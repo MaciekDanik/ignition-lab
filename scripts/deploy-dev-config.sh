@@ -21,6 +21,7 @@ MANAGED_PATHS=(
     "core/com.inductiveautomation.opcua/device"
     "core/ignition/tag-definition/default"
     "core/ignition/tag-type-definition/default"
+    "core/ignition/database-connection"
 )
 
 DEPLOYMENT_ID="${GITHUB_SHA:-manual}-${GITHUB_RUN_ID:-local}-${GITHUB_RUN_ATTEMPT:-1}-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -304,7 +305,8 @@ cat > "$DEPLOY_ROOT/last-successful-dev-config-deployment.json" <<METADATA
   "scopes": [
     "core/com.inductiveautomation.opcua/device",
     "core/ignition/tag-definition/default",
-    "core/ignition/tag-type-definition/default"
+    "core/ignition/tag-type-definition/default",
+    "core/ignition/database-connection"
   ],
   "completedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 }

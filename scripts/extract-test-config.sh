@@ -10,6 +10,7 @@ MANAGED_PATHS=(
     "core/com.inductiveautomation.opcua/device"
     "core/ignition/tag-definition/default"
     "core/ignition/tag-type-definition/default"
+    "core/ignition/database-connection"
 )
 
 log() {
