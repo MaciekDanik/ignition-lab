@@ -131,6 +131,7 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
           DEPLOY_MODE: scan
+          DEV_PROJECTS_PATH: /home/masiek/ignition-lab/ignition-lab/services/ignition-dev/projects
         run: /srv/ignition-lab/release/scripts/deploy-dev.sh
 
       - name: Deploy managed Gateway resources to DEV

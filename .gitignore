@@ -1,11 +1,11 @@
-# Databases and internal state
+# Ignition databases and internal state
 **/db/
 **/metricsdb/
 **/autobackup/
 **/db_backup_sqlite.idb
 **/valueStore.idb
 
-# Cache and runtime files
+# Temporary caches, request data, and runtime files
 **/jar-cache/
 **/request
 **/response
@@ -15,15 +15,15 @@
 *.log
 **/logs/
 
-# Security and local secrets
+# Certificates and keystores generated for local environments
 **/certificates/
 **/keystore/
 
-# Host-specific configuration
+# Host-specific configuration overrides
 **/config/local/
 **/config/resources/local/
 
-# Container and conversion artifacts
+# Container initialization and project conversion artifacts
 **/.container-init.conf
 **/conversion-report.txt
 **.digest.json
@@ -31,13 +31,13 @@
 **/migration-log-*.md
 **/.resources/
 
-# Alarm history
+# Locally generated alarm history
 **/.alarms_*
 
-# Gateway backups
+# Exported Gateway backups
 *.gwbk
 
-# Local environment and editor files
+# Local environment files and editor metadata
 .env
 .env.*
 !.env.example
@@ -62,23 +62,23 @@ Thumbs.db
 **/.install4j/
 **/ignition/images/Builtin/
 
-# Ignition built-in resources
+# Ignition resources managed by the runtime
 config/resources/core/ignition/database-driver/
 config/resources/core/ignition/database-translator/
 config/resources/core/ignition/keyboard_layout/
 config/resources/core/ignition/quickstart/
 
-# Built-in tag infrastructure
+# System-owned tag infrastructure
 config/resources/core/ignition/tag-definition/
 config/resources/core/ignition/tag-type-definition/
 config/resources/core/ignition/tag-provider/System/
 config/resources/core/ignition/tag-group/System/
 
-# Generated logging configuration
+# Runtime-generated logging configuration
 log4j.properties
 logback.xml
 
-# Local Docker lab state
+# Local Docker lab state and credentials
 /runtime/
 /secrets/
 
@@ -87,3 +87,8 @@ logback.xml
 
 # Local build output
 /build/
+
+# CI/CD deployment targets populated by deployment scripts
+/services/ignition-dev/
+/services/ignition-staging/
+/services/ignition-prod/
