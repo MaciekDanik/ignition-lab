@@ -62,5 +62,12 @@
       "persistent": false
     }
   },
-  "props": {}
+  "props": {
+    "address": "10.0.2.2",
+    "device": {},
+    "geolocation": {},
+    "locale": "pl-PL",
+    "offline": {},
+    "timeZoneId": "Europe/Warsaw"
+  }
 }
