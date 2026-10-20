@@ -129,12 +129,34 @@ verify_gateway() {
 }
 
 apply_permissions() {
-    local target="$1"
+    local relative_path="$1"
+    local target="$DEV_CONFIG_ROOT/$relative_path"
+    local child
 
     [[ -d "$target" ]] || return 0
 
-    setfacl -R -m "u:${IGNITION_UID}:rwX" "$target"
-    setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$target"
+    setfacl -m "u:${IGNITION_UID}:rwX" "$target"
+    setfacl -d -m "u:${IGNITION_UID}:rwX" "$target"
+
+    if [[ "$relative_path" == "core/ignition/tag-definition" ]]; then
+        while IFS= read -r -d '' child; do
+            if [[ "$(basename "$child")" == "System" ]]; then
+                continue
+            fi
+
+            setfacl -R -m "u:${IGNITION_UID}:rwX" "$child"
+            setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$child"
+        done < <(
+            find "$target" \
+                -mindepth 1 \
+                -maxdepth 1 \
+                -type d \
+                -print0
+        )
+    else
+        setfacl -R -m "u:${IGNITION_UID}:rwX" "$target"
+        setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$target"
+    fi
 }
 
 backup_managed_paths() {
@@ -152,7 +174,14 @@ backup_managed_paths() {
         if [[ -d "$source_path" ]]; then
             printf 'present\t%s\n' "$relative_path" >> "$MANIFEST_FILE"
             mkdir -p "$backup_path"
-            rsync -a "$source_path/" "$backup_path/"
+            rsync -a \
+                --no-owner \
+                --no-group \
+                --no-perms \
+                --exclude='.resources/' \
+                --exclude='System/' \
+                "$source_path/" \
+                "$backup_path/"
         else
             printf 'absent\t%s\n' "$relative_path" >> "$MANIFEST_FILE"
         fi
@@ -175,12 +204,15 @@ deploy_managed_paths() {
             mkdir -p "$destination_path"
 
             rsync -a --delete \
+                --no-owner \
+                --no-group \
+                --no-perms \
                 --exclude='.resources/' \
                 --exclude='System/' \
                 "$source_path/" \
                 "$destination_path/"
 
-            apply_permissions "$destination_path"
+            apply_permissions "$relative_path"
         else
             log "Git scope is absent; leaving DEV scope unchanged."
         fi
@@ -203,10 +235,15 @@ restore_managed_paths() {
             mkdir -p "$destination_path"
 
             rsync -a --delete \
+                --no-owner \
+                --no-group \
+                --no-perms \
+                --exclude='.resources/' \
+                --exclude='System/' \
                 "$backup_path/" \
                 "$destination_path/"
 
-            apply_permissions "$destination_path"
+            apply_permissions "$relative_path"
         else
             rm -rf "$destination_path"
         fi
