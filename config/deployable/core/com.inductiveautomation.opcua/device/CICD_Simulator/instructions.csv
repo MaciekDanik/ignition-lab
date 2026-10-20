@@ -1,3 +1,4 @@
 Time Interval, Browse Path, Value Source, Data Type
 "0","tags/test1","ramp(0.0, 100.0, 10.0, true)","Double"
 "0","tags/test2","25","Int16"
+"0","machine/equipment/motor/temperature","sine(40, 60, 30, true)","Double"
