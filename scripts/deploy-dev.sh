@@ -440,7 +440,9 @@ cat > "$DEPLOY_ROOT/last-successful-dev-deployment.json" <<METADATA
 METADATA
 
 # Keep the ten newest deployment backups.
-find "$BACKUP_ROOT" \
+log "Pruning old DEV project backups..."
+
+if ! find "$BACKUP_ROOT" \
     -mindepth 1 \
     -maxdepth 1 \
     -type d \
@@ -449,6 +451,9 @@ find "$BACKUP_ROOT" \
     | tail -n +11 \
     | cut -d' ' -f2- \
     | xargs -r rm -rf
+then
+    log "WARNING: some old DEV project backups could not be removed."
+fi
 
 DEPLOYMENT_SUCCEEDED=1
 

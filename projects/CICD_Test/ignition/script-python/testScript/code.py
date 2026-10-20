@@ -1,6 +1,5 @@
-def testScript(some_text):
-	# This function will return some text
-	return some_text
+def fullPromotionMarker():
+	return "FULL_PROMOTION_TEST_20261020"
 	
 def printSecondAscii(input_date):
 	seconds = system.date.getSecond(input_date)

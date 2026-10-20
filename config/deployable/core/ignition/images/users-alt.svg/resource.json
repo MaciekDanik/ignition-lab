@@ -1,0 +1,21 @@
+{
+  "scope": "A",
+  "description": "",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "users-alt.svg"
+  ],
+  "attributes": {
+    "width": 512,
+    "format": "SVG",
+    "lastModification": {
+      "actor": "admin",
+      "timestamp": "2026-10-20T08:40:56Z"
+    },
+    "size": 586,
+    "lastModificationSignature": "c46530be60c4d37206a52963ad7e748c20d724b156ec1140c593beef224ff02f",
+    "height": 512
+  }
+}

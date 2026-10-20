@@ -32,7 +32,11 @@ REQUIRED_PATHS=(
     ".github/workflows/deploy-dev.yml"
     ".env.example"
     "config/deployable/core/com.inductiveautomation.opcua/device"
+    "config/deployable/core/ignition/tag-definition"
+    "config/deployable/core/ignition/tag-type-definition"
+    "config/deployable/core/ignition/database-connection"
     "scripts/extract-test-config.sh"
+    "config/deployable/core/ignition/images"
     "scripts/deploy-dev-config.sh"
 )
 
