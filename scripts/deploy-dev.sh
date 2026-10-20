@@ -14,7 +14,7 @@ ENV_FILE="$DEPLOY_ROOT/.env"
 COMPOSE_FILE="$RELEASE_ROOT/compose/compose.yml"
 API_TOKEN_FILE="$SECRETS_ROOT/dev_gateway_api_token.txt"
 
-DEV_RUNTIME="$RUNTIME_ROOT/dev/projects"
+DEV_RUNTIME="${DEV_PROJECTS_PATH:-$SOURCE_ROOT/services/ignition-dev/projects}"
 SOURCE_PROJECTS="$SOURCE_ROOT/projects"
 
 CONTAINER_NAME="ignition-dev"

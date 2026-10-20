@@ -32,7 +32,7 @@ services:
       - ignition-test-data:/usr/local/bin/ignition/data
 
       # Repository-managed Ignition 8.3 resources.
-      - ../runtime/test/projects:/usr/local/bin/ignition/data/projects
+      - ${TEST_PROJECTS_PATH:-../projects}:/usr/local/bin/ignition/data/projects
       - ../runtime/test/config/resources:/usr/local/bin/ignition/data/config/resources
 
       # Local password file, never committed.
@@ -83,7 +83,7 @@ services:
       - ignition-dev-data:/usr/local/bin/ignition/data
 
       # Repository-managed Ignition 8.3 resources.
-      - ../runtime/dev/projects:/usr/local/bin/ignition/data/projects
+      - ${DEV_PROJECTS_PATH:-../services/ignition-dev/projects}:/usr/local/bin/ignition/data/projects
       - ../runtime/dev/config/resources:/usr/local/bin/ignition/data/config/resources
 
       # Local password file, never committed.
