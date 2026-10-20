@@ -310,8 +310,13 @@ log "Release root: $RELEASE_ROOT"
 [[ -f "$SOURCE_PROJECTS/CICD_Test/project.json" ]] \
     || fail "CICD_Test project.json is missing from deployment source."
 
-[[ -d "$DEV_RUNTIME" ]] \
-    || fail "DEV runtime projects directory does not exist: $DEV_RUNTIME"
+if [[ ! -d "$DEV_RUNTIME" ]]; then
+    log "Creating DEV projects directory: $DEV_RUNTIME"
+    mkdir -p "$DEV_RUNTIME"
+fi
+
+[[ -w "$DEV_RUNTIME" ]] \
+    || fail "DEV runtime directory is not writable: $DEV_RUNTIME"
 
 [[ -f "$ENV_FILE" ]] \
     || fail "Deployment environment file is missing: $ENV_FILE"
