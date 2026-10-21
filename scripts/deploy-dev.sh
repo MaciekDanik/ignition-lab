@@ -188,13 +188,13 @@ verify_container_state() {
 # }
 
 apply_project_permissions() {
-    [[ -d "$DEV_PROJECTS" ]] || return 0
+    [[ -d "$DEV_RUNTIME" ]] || return 0
 
-    setfacl -R -m u:actions:rwX "$DEV_PROJECTS"
-    setfacl -R -d -m u:actions:rwX "$DEV_PROJECTS"
+    setfacl -R -m u:actions:rwX "$DEV_RUNTIME"
+    setfacl -R -d -m u:actions:rwX "$DEV_RUNTIME"
 
-    setfacl -R -m u:2003:rwX "$DEV_PROJECTS"
-    setfacl -R -d -m u:2003:rwX "$DEV_PROJECTS"
+    setfacl -R -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
+    setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
 }
 
 restore_backup_files() {
@@ -404,7 +404,7 @@ rsync -a --delete \
     --no-perms \
     --no-times \
     --exclude='.resources/' \
-    "$PROJECTS_SOURCE/" \
+    "$SOURCE_PROJECTS/" \
     "$DEV_RUNTIME/"
 
 apply_project_permissions

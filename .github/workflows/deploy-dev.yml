@@ -73,7 +73,7 @@ jobs:
           test -f ./projects/CICD_Test/project.json
 
           test -f /srv/ignition-lab/.env
-          test -d /srv/ignition-lab/runtime/dev/projects
+          test -d /home/masiek/ignition-lab/ignition-lab/services/ignition-dev/projects
           test -d /srv/ignition-lab/secrets
           test -d /srv/ignition-lab/backups/dev
 

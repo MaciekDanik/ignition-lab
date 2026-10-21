@@ -19,11 +19,12 @@ LOCK_FILE="$DEPLOY_ROOT/deploy-dev-config.lock"
 
 MANAGED_PATHS=(
     "core/com.inductiveautomation.opcua/device"
+    "core/ignition/tag-provider"
+    "core/ignition/tag-group"
     "core/ignition/tag-definition"
     "core/ignition/tag-type-definition"
     "core/ignition/database-connection"
     "core/ignition/images"
-    "core/ignition/tag-provider"
 )
 
 DEPLOYMENT_ID="${GITHUB_SHA:-manual}-${GITHUB_RUN_ID:-local}-${GITHUB_RUN_ATTEMPT:-1}-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -138,25 +139,31 @@ apply_permissions() {
     setfacl -m "u:${IGNITION_UID}:rwX" "$target"
     setfacl -d -m "u:${IGNITION_UID}:rwX" "$target"
 
-    if [[ "$relative_path" == "core/ignition/tag-definition" ]]; then
-        while IFS= read -r -d '' child; do
-            if [[ "$(basename "$child")" == "System" ]]; then
-                continue
-            fi
+    case "$relative_path" in
+        "core/ignition/tag-provider"|\
+        "core/ignition/tag-group"|\
+        "core/ignition/tag-definition"|\
+        "core/ignition/tag-type-definition")
+            while IFS= read -r -d '' child; do
+                if [[ "$(basename "$child")" == "System" ]]; then
+                    continue
+                fi
 
-            setfacl -R -m "u:${IGNITION_UID}:rwX" "$child"
-            setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$child"
-        done < <(
-            find "$target" \
-                -mindepth 1 \
-                -maxdepth 1 \
-                -type d \
-                -print0
-        )
-    else
-        setfacl -R -m "u:${IGNITION_UID}:rwX" "$target"
-        setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$target"
-    fi
+                setfacl -R -m "u:${IGNITION_UID}:rwX" "$child"
+                setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$child"
+            done < <(
+                find "$target" \
+                    -mindepth 1 \
+                    -maxdepth 1 \
+                    -type d \
+                    -print0
+            )
+            ;;
+        *)
+            setfacl -R -m "u:${IGNITION_UID}:rwX" "$target"
+            setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$target"
+            ;;
+    esac
 }
 
 backup_managed_paths() {
@@ -178,6 +185,7 @@ backup_managed_paths() {
                 --no-owner \
                 --no-group \
                 --no-perms \
+                --no-times \
                 --exclude='.resources/' \
                 --exclude='System/' \
                 "$source_path/" \
@@ -207,6 +215,7 @@ deploy_managed_paths() {
                 --no-owner \
                 --no-group \
                 --no-perms \
+                --no-times \
                 --exclude='.resources/' \
                 --exclude='System/' \
                 "$source_path/" \
@@ -238,6 +247,7 @@ restore_managed_paths() {
                 --no-owner \
                 --no-group \
                 --no-perms \
+                --no-times \
                 --exclude='.resources/' \
                 --exclude='System/' \
                 "$backup_path/" \
@@ -345,11 +355,12 @@ cat > "$DEPLOY_ROOT/last-successful-dev-config-deployment.json" <<METADATA
   "commit": "${GITHUB_SHA:-manual}",
   "scopes": [
     "core/com.inductiveautomation.opcua/device",
+    "core/ignition/tag-provider",
+    "core/ignition/tag-group",
     "core/ignition/tag-definition",
     "core/ignition/tag-type-definition",
     "core/ignition/database-connection",
-    "core/ignition/images",
-    "core/ignition/tag-provider"
+    "core/ignition/images"
   ],
   "completedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 }
