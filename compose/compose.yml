@@ -35,9 +35,6 @@ services:
       - ${TEST_PROJECTS_PATH:-../projects}:/usr/local/bin/ignition/data/projects
       - ../runtime/test/config/resources:/usr/local/bin/ignition/data/config/resources
 
-      # Local password file, never committed.
-      - ../secrets/test_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro
-
       - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/com.inductiveautomation.opcua/device:/usr/local/bin/ignition/data/config/resources/core/com.inductiveautomation.opcua/device
 
       - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/tag-provider:/usr/local/bin/ignition/data/config/resources/core/ignition/tag-provider
@@ -52,6 +49,8 @@ services:
 
       - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/images:/usr/local/bin/ignition/data/config/resources/core/ignition/images
 
+      # Local password file, never committed.
+      - ../secrets/test_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro
     healthcheck:
       test:
         - CMD
