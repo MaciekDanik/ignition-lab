@@ -64,36 +64,18 @@
             "children": [
               {
                 "meta": {
-                  "name": "Label"
+                  "name": "Image"
                 },
                 "position": {
                   "grow": 1
                 },
-                "propConfig": {
-                  "props.text": {
-                    "binding": {
-                      "config": {
-                        "expression": "now(1000)"
-                      },
-                      "transforms": [
-                        {
-                          "code": "\ttext \u003d testScript.printSecondAscii(value)\n\treturn text",
-                          "type": "script"
-                        }
-                      ],
-                      "type": "expr"
-                    }
-                  }
-                },
                 "props": {
-                  "style": {
-                    "color": "#000000",
-                    "fontFamily": "Noto Sans",
-                    "fontSize": "28px",
-                    "textAlign": "center"
-                  }
+                  "fit": {
+                    "mode": "fill"
+                  },
+                  "source": "/system/images/users-alt.svg"
                 },
-                "type": "ia.display.label"
+                "type": "ia.display.image"
               }
             ],
             "meta": {
