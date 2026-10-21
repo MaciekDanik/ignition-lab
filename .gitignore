@@ -92,3 +92,6 @@ logback.xml
 /services/ignition-dev/
 /services/ignition-staging/
 /services/ignition-prod/
+
+# local backups
+**/backups/
