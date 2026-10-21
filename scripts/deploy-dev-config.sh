@@ -5,7 +5,7 @@ set -Eeuo pipefail
 SOURCE_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 DEPLOY_ROOT="/srv/ignition-lab"
-GIT_CONFIG_ROOT="$SOURCE_ROOT/config/deployable"
+GIT_CONFIG_ROOT="$SOURCE_ROOT/config/gateway/resources"
 DEV_CONFIG_ROOT="$DEPLOY_ROOT/runtime/dev/config/resources"
 BACKUP_ROOT="$DEPLOY_ROOT/backups/dev-config"
 
