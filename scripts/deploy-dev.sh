@@ -180,21 +180,15 @@ verify_container_state() {
         && [[ "$oom" == "false" ]]
 }
 
-# apply_project_permissions() {
-#     # Deployment owns the synchronized project files. Ignition UID 2003 needs
-#     # read/write/traverse access and matching defaults for files it creates.
-#     setfacl -R -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
-#     setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
-# }
+verify_project_permissions() {
+    [[ -d "$DEV_RUNTIME" ]] \
+        || fail "DEV project directory does not exist: $DEV_RUNTIME"
 
-apply_project_permissions() {
-    [[ -d "$DEV_RUNTIME" ]] || return 0
+    [[ -w "$DEV_RUNTIME" ]] \
+        || fail "DEV project directory is not writable: $DEV_RUNTIME"
 
-    setfacl -R -m u:actions:rwX "$DEV_RUNTIME"
-    setfacl -R -d -m u:actions:rwX "$DEV_RUNTIME"
-
-    setfacl -R -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
-    setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
+    test -x "$DEV_RUNTIME" \
+        || fail "DEV project directory is not traversable: $DEV_RUNTIME"
 }
 
 restore_backup_files() {
@@ -207,10 +201,11 @@ restore_backup_files() {
         --no-group \
         --no-perms \
         --no-times \
+        --exclude='.resources/' \
         "$BACKUP_DIR/projects/" \
         "$DEV_RUNTIME/"
 
-    apply_project_permissions
+    verify_project_permissions
 }
 
 restart_dev() {
@@ -337,7 +332,7 @@ fi
 [[ -f "$COMPOSE_FILE" ]] \
     || fail "Compose file is missing: $COMPOSE_FILE"
 
-for required_command in docker rsync curl flock jq setfacl; do
+for required_command in docker rsync curl flock jq; do
     command -v "$required_command" >/dev/null \
         || fail "Required command is not installed: $required_command"
 done
@@ -407,7 +402,7 @@ rsync -a --delete \
     "$SOURCE_PROJECTS/" \
     "$DEV_RUNTIME/"
 
-apply_project_permissions
+verify_project_permissions
 
 if [[ "${DEPLOY_TEST_FORCE_FAILURE:-false}" == "true" ]]; then
     fail "Deliberate rollback test failure after project synchronization."
