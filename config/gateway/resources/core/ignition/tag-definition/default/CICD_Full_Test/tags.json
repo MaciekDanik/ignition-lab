@@ -1,7 +1,7 @@
 [
   {
     "dataType": "String",
-    "defaultValue": "FULL_PROMOTION_TEST_20261020",
+    "defaultValue": "DIRECT_CONFIG_MOUNT_WORKS",
     "name": "DefaultMarker",
     "tagType": "AtomicTag",
     "valueSource": "memory"
