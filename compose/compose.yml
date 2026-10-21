@@ -38,6 +38,20 @@ services:
       # Local password file, never committed.
       - ../secrets/test_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro
 
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/com.inductiveautomation.opcua/device:/usr/local/bin/ignition/data/config/resources/core/com.inductiveautomation.opcua/device
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/tag-provider:/usr/local/bin/ignition/data/config/resources/core/ignition/tag-provider
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/tag-group:/usr/local/bin/ignition/data/config/resources/core/ignition/tag-group
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/tag-definition:/usr/local/bin/ignition/data/config/resources/core/ignition/tag-definition
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/tag-type-definition:/usr/local/bin/ignition/data/config/resources/core/ignition/tag-type-definition
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/database-connection:/usr/local/bin/ignition/data/config/resources/core/ignition/database-connection
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/images:/usr/local/bin/ignition/data/config/resources/core/ignition/images
+
     healthcheck:
       test:
         - CMD

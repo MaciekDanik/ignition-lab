@@ -23,6 +23,10 @@
 **/config/local/
 **/config/resources/local/
 
+# Host-local Gateway configuration
+/config/gateway/local/
+/config/gateway/resources/local/
+
 # Container initialization and project conversion artifacts
 **/.container-init.conf
 **/conversion-report.txt
@@ -30,6 +34,13 @@
 **/projects/conversion-report.txt
 **/migration-log-*.md
 **/.resources/
+**/config/gateway/**/temp*/
+
+# Generated and machine-managed System Tag Provider resources
+/config/gateway/resources/core/ignition/tag-provider/System/
+/config/gateway/resources/core/ignition/tag-group/System/
+/config/gateway/resources/core/ignition/tag-definition/System/
+/config/gateway/resources/core/ignition/tag-type-definition/System/
 
 # Locally generated alarm history
 **/.alarms_*
