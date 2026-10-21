@@ -17,7 +17,7 @@
                 "textAlign": "left",
                 "wordWrap": "break-word"
               },
-              "text": "FULL_PROMOTION_TEST_20261020\n"
+              "text": "DIRECT_GIT_MOUNT_WORKS\n"
             },
             "type": "ia.display.label"
           }
