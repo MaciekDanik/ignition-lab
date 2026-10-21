@@ -1,0 +1,75 @@
+[
+  {
+    "name": "Machine",
+    "tagType": "UdtType",
+    "typeId": null,
+    "tags": [
+      {
+        "name": "equipment_1",
+        "tagType": "Folder",
+        "tags": [
+          {
+            "name": "tags_udt",
+            "tagType": "Folder",
+            "tags": [
+              {
+                "name": "andon_udt",
+                "tagType": "Folder",
+                "tags": [
+                  {
+                    "dataType": "Boolean",
+                    "name": "status_1",
+                    "tagType": "AtomicTag",
+                    "value": true,
+                    "valueSource": "memory"
+                  },
+                  {
+                    "dataType": "Boolean",
+                    "name": "status_2",
+                    "tagType": "AtomicTag",
+                    "value": false,
+                    "valueSource": "memory"
+                  }
+                ]
+              },
+              {
+                "name": "error_udt",
+                "tagType": "Folder",
+                "tags": [
+                  {
+                    "dataType": "Boolean",
+                    "name": "error_1",
+                    "tagType": "AtomicTag",
+                    "value": 0,
+                    "valueSource": "memory"
+                  },
+                  {
+                    "dataType": "Boolean",
+                    "defaultValue": 0,
+                    "name": "error_2",
+                    "tagType": "AtomicTag",
+                    "value": 1,
+                    "valueSource": "memory"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Test_UDT",
+    "tagType": "UdtType",
+    "typeId": null,
+    "tags": [
+      {
+        "name": "tag1",
+        "tagType": "AtomicTag",
+        "value": 69,
+        "valueSource": "memory"
+      }
+    ]
+  }
+]
