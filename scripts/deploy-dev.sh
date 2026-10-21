@@ -180,11 +180,21 @@ verify_container_state() {
         && [[ "$oom" == "false" ]]
 }
 
+# apply_project_permissions() {
+#     # Deployment owns the synchronized project files. Ignition UID 2003 needs
+#     # read/write/traverse access and matching defaults for files it creates.
+#     setfacl -R -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
+#     setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
+# }
+
 apply_project_permissions() {
-    # Deployment owns the synchronized project files. Ignition UID 2003 needs
-    # read/write/traverse access and matching defaults for files it creates.
-    setfacl -R -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
-    setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
+    [[ -d "$DEV_PROJECTS" ]] || return 0
+
+    setfacl -R -m u:actions:rwX "$DEV_PROJECTS"
+    setfacl -R -d -m u:actions:rwX "$DEV_PROJECTS"
+
+    setfacl -R -m u:2003:rwX "$DEV_PROJECTS"
+    setfacl -R -d -m u:2003:rwX "$DEV_PROJECTS"
 }
 
 restore_backup_files() {
@@ -193,7 +203,10 @@ restore_backup_files() {
     mkdir -p "$DEV_RUNTIME"
 
     rsync -a --delete \
-        --exclude='.resources/' \
+        --no-owner \
+        --no-group \
+        --no-perms \
+        --no-times \
         "$BACKUP_DIR/projects/" \
         "$DEV_RUNTIME/"
 
@@ -358,6 +371,10 @@ log "Creating backup: $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR/projects"
 
 rsync -a \
+    --no-owner \
+    --no-group \
+    --no-perms \
+    --no-times \
     --exclude='.resources/' \
     "$DEV_RUNTIME/" \
     "$BACKUP_DIR/projects/"
@@ -382,8 +399,12 @@ RUNTIME_MODIFIED=1
 mkdir -p "$DEV_RUNTIME"
 
 rsync -a --delete \
+    --no-owner \
+    --no-group \
+    --no-perms \
+    --no-times \
     --exclude='.resources/' \
-    "$SOURCE_PROJECTS/" \
+    "$PROJECTS_SOURCE/" \
     "$DEV_RUNTIME/"
 
 apply_project_permissions
