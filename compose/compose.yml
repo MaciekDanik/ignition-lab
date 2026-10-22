@@ -97,7 +97,7 @@ services:
 
       # Repository-managed Ignition 8.3 resources.
       - ${DEV_PROJECTS_PATH:-../services/ignition-dev/projects}:/usr/local/bin/ignition/data/projects
-      - ../runtime/dev/config/resources:/usr/local/bin/ignition/data/config/resources
+      - ${DEV_CONFIG_RESOURCES_PATH:-../services/ignition-dev/config/resources}:/usr/local/bin/ignition/data/config/resources
 
       # Local password file, never committed.
       - ../secrets/dev_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro

@@ -6,7 +6,7 @@ SOURCE_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd
 
 DEPLOY_ROOT="/srv/ignition-lab"
 GIT_CONFIG_ROOT="$SOURCE_ROOT/config/gateway/resources"
-DEV_CONFIG_ROOT="$DEPLOY_ROOT/runtime/dev/config/resources"
+DEV_CONFIG_ROOT="${DEV_CONFIG_ROOT:-$SOURCE_ROOT/services/ignition-dev/config/resources}"
 BACKUP_ROOT="$DEPLOY_ROOT/backups/dev-config"
 
 API_TOKEN_FILE="$DEPLOY_ROOT/secrets/dev_gateway_api_token.txt"
