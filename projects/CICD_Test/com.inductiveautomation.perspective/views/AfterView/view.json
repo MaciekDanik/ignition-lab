@@ -46,8 +46,8 @@
                   "grow": 1
                 },
                 "props": {
-                  "color": "#00AB11",
-                  "path": "material/fingerprint"
+                  "color": "#2733F3",
+                  "path": "material/child_care"
                 },
                 "type": "ia.display.icon"
               }
@@ -113,7 +113,22 @@
                 "textAlign": "left",
                 "wordWrap": "break-word"
               },
-              "text": "Automated deplyment changed this view - without any manual input or GW downtime."
+              "text": "some random local change or shit\n"
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Label_0"
+            },
+            "props": {
+              "style": {
+                "fontSize": "18px",
+                "fontWeight": "normal",
+                "textAlign": "left",
+                "wordWrap": "break-word"
+              },
+              "text": "test - REPOSITORY_LOCAL_PROMOTION_WORKS"
             },
             "type": "ia.display.label"
           }
@@ -125,7 +140,7 @@
           "grow": 1
         },
         "props": {
-          "justify": "center",
+          "justify": "space-between",
           "style": {
             "backgroundColor": "#EFFFFF",
             "padding": "16px"

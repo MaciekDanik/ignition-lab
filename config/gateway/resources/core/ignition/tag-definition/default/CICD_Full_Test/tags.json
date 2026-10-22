@@ -2,6 +2,7 @@
   {
     "dataType": "String",
     "defaultValue": "DIRECT_CONFIG_MOUNT_WORKS",
+    "documentation": "REPOSITORY_LOCAL_CONFIG_WORKS",
     "name": "DefaultMarker",
     "tagType": "AtomicTag",
     "valueSource": "memory"
