@@ -46,8 +46,8 @@
                   "grow": 1
                 },
                 "props": {
-                  "color": "#2733F3",
-                  "path": "material/child_care"
+                  "color": "#B407A8",
+                  "path": "material/blur_circular"
                 },
                 "type": "ia.display.icon"
               }
@@ -106,14 +106,25 @@
             "meta": {
               "name": "Label"
             },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[default]changed_tag_name"
+                  },
+                  "type": "tag"
+                }
+              }
+            },
             "props": {
               "style": {
                 "fontSize": "18px",
                 "fontWeight": "normal",
                 "textAlign": "left",
                 "wordWrap": "break-word"
-              },
-              "text": "some random local change or shit\n"
+              }
             },
             "type": "ia.display.label"
           },
