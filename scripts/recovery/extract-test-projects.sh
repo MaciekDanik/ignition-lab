@@ -2,7 +2,11 @@
 
 set -Eeuo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Recovery/import utility only.
+# This script is not part of the normal TEST-to-DEV workflow.
+# TEST projects and selected Gateway resources are mounted directly from Git.
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 
 CONTAINER_NAME="ignition-test"

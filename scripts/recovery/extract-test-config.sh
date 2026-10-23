@@ -2,17 +2,22 @@
 
 set -Eeuo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Recovery/import utility only.
+# This script is not part of the normal TEST-to-DEV workflow.
+# TEST projects and selected Gateway resources are mounted directly from Git.
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TEST_CONFIG_ROOT="/srv/ignition-lab/runtime/test/config/resources"
-GIT_CONFIG_ROOT="$REPO_ROOT/config/deployable"
+RECOVERY_OUTPUT_ROOT="${RECOVERY_OUTPUT_ROOT:-$REPO_ROOT/recovery-output/config}"
 
 MANAGED_PATHS=(
     "core/com.inductiveautomation.opcua/device"
+    "core/ignition/tag-provider"
+    "core/ignition/tag-group"
     "core/ignition/tag-definition"
     "core/ignition/tag-type-definition"
     "core/ignition/database-connection"
     "core/ignition/images"
-    "core/ignition/tag-provider"
 )
 
 log() {
@@ -42,13 +47,14 @@ for command_name in rsync jq git find; do
         || fail "Required command is missing: $command_name"
 done
 
-if [[ -n "$(git status --short -- config/deployable 2>/dev/null)" ]]; then
-    fail "config/deployable already contains uncommitted changes. Review or commit them first."
+if [[ -e "$RECOVERY_OUTPUT_ROOT" ]]; then
+    fail "Recovery output already exists: $RECOVERY_OUTPUT_ROOT. Review, move, or remove it before running this utility."
 fi
 
+mkdir -p "$RECOVERY_OUTPUT_ROOT"
 for relative_path in "${MANAGED_PATHS[@]}"; do
     source_path="$TEST_CONFIG_ROOT/$relative_path"
-    destination_path="$GIT_CONFIG_ROOT/$relative_path"
+    destination_path="$RECOVERY_OUTPUT_ROOT/$relative_path"
 
     log "Processing: $relative_path"
 
@@ -89,5 +95,7 @@ done
 
 log "Gateway configuration extraction completed."
 log "Review with:"
-log "  git status --short -- config/deployable"
-log "  git diff -- config/deployable"
+log "Recovery output:"
+log "  $RECOVERY_OUTPUT_ROOT"
+log
+log "Review the extracted files manually before copying selected resources into config/gateway/resources."

@@ -106,3 +106,4 @@ logback.xml
 
 # local backups
 **/backups/
+/recovery-output/
