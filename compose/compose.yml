@@ -26,6 +26,8 @@ services:
       - ignition-test
       - -m
       - "1536"
+      - --
+      - -Dignition.config.mode=test
 
     volumes:
       # Gateway runtime state, including its internal database.
@@ -33,7 +35,7 @@ services:
 
       # Repository-managed Ignition 8.3 resources.
       - ${TEST_PROJECTS_PATH:-../projects}:/usr/local/bin/ignition/data/projects
-      - ../runtime/test/config/resources:/usr/local/bin/ignition/data/config/resources
+      - ${TEST_CONFIG_RESOURCES_PATH:-../runtime/test/config/resources}:/usr/local/bin/ignition/data/config/resources
 
       - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/com.inductiveautomation.opcua/device:/usr/local/bin/ignition/data/config/resources/core/com.inductiveautomation.opcua/device
 
@@ -51,6 +53,10 @@ services:
 
       # Local password file, never committed.
       - ../secrets/test_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro
+
+      # Git-backed Deployment Mode collections.
+      - ${TEST_GATEWAY_RESOURCES_ROOT:-../config/gateway/resources}/test:/usr/local/bin/ignition/data/config/resources/test
+      - ${TEST_GATEWAY_RESOURCES_ROOT:-../config/gateway/resources}/dev:/usr/local/bin/ignition/data/config/resources/dev
     healthcheck:
       test:
         - CMD
@@ -90,6 +96,8 @@ services:
       - ignition-dev
       - -m
       - "1536"
+      - --
+      - -Dignition.config.mode=dev
 
     volumes:
       # Gateway runtime state, including its internal database.

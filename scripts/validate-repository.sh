@@ -40,6 +40,13 @@ REQUIRED_PATHS=(
     "config/gateway/resources/core/ignition/tag-type-definition"
     "config/gateway/resources/core/ignition/database-connection"
     "config/gateway/resources/core/ignition/images"
+
+    "config/gateway/resources/test/config-mode.json"
+    "config/gateway/resources/test/ignition/database-connection/CICD_Lab_DB/config.json"
+    "config/gateway/resources/test/ignition/database-connection/CICD_Lab_DB/resource.json"
+    "config/gateway/resources/dev/config-mode.json"
+    "config/gateway/resources/dev/ignition/database-connection/CICD_Lab_DB/config.json"
+    "config/gateway/resources/dev/ignition/database-connection/CICD_Lab_DB/resource.json"
 )
 
 for path in "${REQUIRED_PATHS[@]}"; do
