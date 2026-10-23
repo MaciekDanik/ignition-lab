@@ -1,9 +1,0 @@
-[
-  {
-    "dataType": "String",
-    "defaultValue": "FULL_PROMOTION_TEST_20261020",
-    "name": "DefaultMarker",
-    "tagType": "AtomicTag",
-    "valueSource": "memory"
-  }
-]
