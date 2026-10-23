@@ -24,6 +24,8 @@ MANAGED_PATHS=(
     "core/ignition/tag-type-definition"
     "core/ignition/database-connection"
     "core/ignition/images"
+    "test"
+    "dev"
 )
 
 DEPLOYMENT_ID="${GITHUB_SHA:-manual}-${GITHUB_RUN_ID:-local}-${GITHUB_RUN_ATTEMPT:-1}-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -381,7 +383,9 @@ cat > "$DEPLOY_ROOT/last-successful-dev-config-deployment.json" <<METADATA
     "core/ignition/tag-definition",
     "core/ignition/tag-type-definition",
     "core/ignition/database-connection",
-    "core/ignition/images"
+    "core/ignition/images",
+    "test",
+    "dev"
   ],
   "completedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 }

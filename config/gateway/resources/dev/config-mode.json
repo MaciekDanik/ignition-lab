@@ -1,0 +1,7 @@
+{
+  "title": "DEV",
+  "description": "DEV environment overrides",
+  "enabled": true,
+  "inheritable": true,
+  "parent": "core"
+}

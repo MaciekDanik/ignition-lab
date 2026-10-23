@@ -1,0 +1,19 @@
+{
+  "scope": "A",
+  "description": "test deployment mode",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "config.json"
+  ],
+  "attributes": {
+    "lastModification": {
+      "actor": "admin",
+      "timestamp": "2026-10-23T11:42:26Z"
+    },
+    "uuid": "c768f7aa-f20e-4404-983d-2a8d60b80a9a",
+    "lastModificationSignature": "45fbbc4a44e379a43dbc5205280b822b63d445f6cd9637ae02237b0687f95f87",
+    "enabled": true
+  }
+}
