@@ -1,6 +1,6 @@
 [
   {
-    "dataType": "Float8",
+    "dataType": "String",
     "name": "changed_tag_name",
     "opcItemPath": "ns\u003d1;s\u003d[CICD_Simulator]tags/test1",
     "opcServer": "Ignition OPC UA Server",
