@@ -35,7 +35,7 @@ services:
 
       # Repository-managed Ignition 8.3 resources.
       - ${TEST_PROJECTS_PATH:-../projects}:/usr/local/bin/ignition/data/projects
-      - ../runtime/test/config/resources:/usr/local/bin/ignition/data/config/resources
+      - ${TEST_CONFIG_RESOURCES_PATH:-../runtime/test/config/resources}:/usr/local/bin/ignition/data/config/resources
 
       - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/com.inductiveautomation.opcua/device:/usr/local/bin/ignition/data/config/resources/core/com.inductiveautomation.opcua/device
 
