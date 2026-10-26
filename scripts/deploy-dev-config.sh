@@ -183,6 +183,7 @@ backup_managed_paths() {
                     --no-times \
                     --exclude='.resources/' \
                     --exclude='System/' \
+                    --exclude='*.bak/' \
                     "$source_path/" \
                     "$backup_path/"
             then
@@ -222,6 +223,7 @@ deploy_managed_paths() {
                 --no-times \
                 --exclude='.resources/' \
                 --exclude='System/' \
+                --exclude='*.bak/' \
                 "$source_path/" \
                 "$destination_path/"
             then
@@ -262,6 +264,7 @@ restore_managed_paths() {
                 --no-times \
                 --exclude='.resources/' \
                 --exclude='System/' \
+                --exclude='*.bak/' \
                 "$backup_path/" \
                 "$destination_path/"
             then
@@ -297,6 +300,7 @@ verify_managed_paths() {
                 rsync -rcni --delete \
                     --exclude='.resources/' \
                     --exclude='System/' \
+                    --exclude='*.bak/' \
                     "$source_path/" \
                     "$destination_path/"
             )"
