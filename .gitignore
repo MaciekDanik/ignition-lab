@@ -71,7 +71,6 @@ Thumbs.db
 **/user-lib/modules/
 **/.ignition/
 **/.install4j/
-**/ignition/images/Builtin/
 
 # Ignition resources managed by the runtime
 config/resources/core/ignition/database-driver/
