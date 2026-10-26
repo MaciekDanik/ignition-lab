@@ -47,9 +47,6 @@ REQUIRED_PATHS=(
     "config/gateway/resources/dev/config-mode.json"
     "config/gateway/resources/dev/ignition/database-connection/CICD_Lab_DB/config.json"
     "config/gateway/resources/dev/ignition/database-connection/CICD_Lab_DB/resource.json"
-
-    "config/gateway/resources/external/ignition/images/External_Smoke/check.png"
-    "config/gateway/resources/external/ignition/images/External_Smoke/resource.json"
 )
 
 for path in "${REQUIRED_PATHS[@]}"; do

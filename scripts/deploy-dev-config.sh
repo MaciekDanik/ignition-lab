@@ -24,7 +24,6 @@ MANAGED_PATHS=(
     "core/ignition/tag-type-definition"
     "core/ignition/database-connection"
     "core/ignition/images"
-    "external/ignition/images"
     "test"
     "dev"
 )
@@ -390,8 +389,7 @@ cat > "$DEPLOY_ROOT/last-successful-dev-config-deployment.json" <<METADATA
     "core/ignition/database-connection",
     "core/ignition/images",
     "test",
-    "dev",
-    "external/ignition/images"
+    "dev"
   ],
   "completedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 }
