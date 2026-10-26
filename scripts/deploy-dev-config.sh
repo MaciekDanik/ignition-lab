@@ -395,6 +395,7 @@ cat > "$DEPLOY_ROOT/last-successful-dev-config-deployment.json" <<METADATA
 }
 METADATA
 
+
 log "Pruning old DEV configuration backups..."
 
 if ! find "$BACKUP_ROOT" \
