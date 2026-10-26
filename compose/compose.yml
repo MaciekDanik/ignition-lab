@@ -57,6 +57,9 @@ services:
       # Git-backed Deployment Mode collections.
       - ${TEST_GATEWAY_RESOURCES_ROOT:-../config/gateway/resources}/test:/usr/local/bin/ignition/data/config/resources/test
       - ${TEST_GATEWAY_RESOURCES_ROOT:-../config/gateway/resources}/dev:/usr/local/bin/ignition/data/config/resources/dev
+      # Git-backed external collection resources.
+      - ${TEST_GATEWAY_RESOURCES_ROOT:-../config/gateway/resources}/external/ignition/images:/usr/local/bin/ignition/data/config/resources/external/ignition/images
+
     healthcheck:
       test:
         - CMD
