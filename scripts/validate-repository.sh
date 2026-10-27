@@ -31,6 +31,7 @@ REQUIRED_PATHS=(
     "scripts/deploy-dev.sh"
     "scripts/deploy-dev-config.sh"
     "scripts/validate-repository.sh"
+    "scripts/provision-git-resource-acls.sh"
     ".github/workflows/deploy-dev.yml"
     ".env.example"
     "config/gateway/resources/core/com.inductiveautomation.opcua/device"
