@@ -17,7 +17,7 @@
                 "textAlign": "left",
                 "wordWrap": "break-word"
               },
-              "text": "DIRECT_GIT_MOUNT_WORKS\n"
+              "text": "Deploy_Showcase"
             },
             "type": "ia.display.label"
           }
@@ -46,7 +46,7 @@
                   "grow": 1
                 },
                 "props": {
-                  "color": "#14B407",
+                  "color": "#192A18",
                   "path": "material/airline_seat_flat_angled"
                 },
                 "type": "ia.display.icon"
