@@ -26,17 +26,37 @@ services:
       - ignition-test
       - -m
       - "1536"
+      - --
+      - -Dignition.config.mode=test
 
     volumes:
       # Gateway runtime state, including its internal database.
       - ignition-test-data:/usr/local/bin/ignition/data
 
       # Repository-managed Ignition 8.3 resources.
-      - ../runtime/test/projects:/usr/local/bin/ignition/data/projects
-      - ../runtime/test/config/resources:/usr/local/bin/ignition/data/config/resources
+      - ${TEST_PROJECTS_PATH:-../projects}:/usr/local/bin/ignition/data/projects
+      - ${TEST_CONFIG_RESOURCES_PATH:-../runtime/test/config/resources}:/usr/local/bin/ignition/data/config/resources
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/com.inductiveautomation.opcua/device:/usr/local/bin/ignition/data/config/resources/core/com.inductiveautomation.opcua/device
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/tag-provider:/usr/local/bin/ignition/data/config/resources/core/ignition/tag-provider
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/tag-group:/usr/local/bin/ignition/data/config/resources/core/ignition/tag-group
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/tag-definition:/usr/local/bin/ignition/data/config/resources/core/ignition/tag-definition
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/tag-type-definition:/usr/local/bin/ignition/data/config/resources/core/ignition/tag-type-definition
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/database-connection:/usr/local/bin/ignition/data/config/resources/core/ignition/database-connection
+
+      - ${TEST_GATEWAY_CONFIG_ROOT:-../config/gateway/resources/core}/ignition/images:/usr/local/bin/ignition/data/config/resources/core/ignition/images
 
       # Local password file, never committed.
       - ../secrets/test_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro
+
+      # Git-backed Deployment Mode collections.
+      - ${TEST_GATEWAY_RESOURCES_ROOT:-../config/gateway/resources}/test:/usr/local/bin/ignition/data/config/resources/test
+      - ${TEST_GATEWAY_RESOURCES_ROOT:-../config/gateway/resources}/dev:/usr/local/bin/ignition/data/config/resources/dev
 
     healthcheck:
       test:
@@ -77,14 +97,16 @@ services:
       - ignition-dev
       - -m
       - "1536"
+      - --
+      - -Dignition.config.mode=dev
 
     volumes:
       # Gateway runtime state, including its internal database.
       - ignition-dev-data:/usr/local/bin/ignition/data
 
       # Repository-managed Ignition 8.3 resources.
-      - ../runtime/dev/projects:/usr/local/bin/ignition/data/projects
-      - ../runtime/dev/config/resources:/usr/local/bin/ignition/data/config/resources
+      - ${DEV_PROJECTS_PATH:-../services/ignition-dev/projects}:/usr/local/bin/ignition/data/projects
+      - ${DEV_CONFIG_RESOURCES_PATH:-../services/ignition-dev/config/resources}:/usr/local/bin/ignition/data/config/resources
 
       # Local password file, never committed.
       - ../secrets/dev_gateway_admin_password.txt:/run/secrets/gateway_admin_password:ro

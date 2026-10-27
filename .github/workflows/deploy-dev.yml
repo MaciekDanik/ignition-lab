@@ -69,13 +69,17 @@ jobs:
         run: |
           test "$GITHUB_REF_NAME" = "develop"
           test -x ./scripts/deploy-dev.sh
+          test -x ./scripts/deploy-dev-config.sh
           test -f ./compose/compose.yml
           test -f ./projects/CICD_Test/project.json
 
           test -f /srv/ignition-lab/.env
-          test -d /srv/ignition-lab/runtime/dev/projects
           test -d /srv/ignition-lab/secrets
           test -d /srv/ignition-lab/backups/dev
+          test -d /srv/ignition-lab/backups/dev-config
+
+          test -d /home/masiek/ignition-lab/ignition-lab/services/ignition-dev/projects
+          test -d /home/masiek/ignition-lab/ignition-lab/services/ignition-dev/config/resources
 
           docker inspect ignition-test >/dev/null
           docker inspect ignition-dev >/dev/null
@@ -131,11 +135,13 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
           DEPLOY_MODE: scan
+          DEV_PROJECTS_PATH: /home/masiek/ignition-lab/ignition-lab/services/ignition-dev/projects
         run: /srv/ignition-lab/release/scripts/deploy-dev.sh
 
       - name: Deploy managed Gateway resources to DEV
         env:
           GITHUB_SHA: ${{ github.sha }}
+          DEV_CONFIG_ROOT: /home/masiek/ignition-lab/ignition-lab/services/ignition-dev/config/resources
         run: /srv/ignition-lab/release/scripts/deploy-dev-config.sh
 
       - name: Verify DEV after deployment

@@ -1,0 +1,21 @@
+{
+  "scope": "A",
+  "description": "",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "chess-bishop.png"
+  ],
+  "attributes": {
+    "width": 512,
+    "format": "PNG",
+    "lastModification": {
+      "actor": "admin",
+      "timestamp": "2026-10-26T14:01:31Z"
+    },
+    "size": 10721,
+    "lastModificationSignature": "056060442a83ecf508ada1b184a58c435847220602c09c4105d7213e07402ce7",
+    "height": 512
+  }
+}

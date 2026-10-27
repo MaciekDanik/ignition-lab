@@ -1,0 +1,21 @@
+{
+  "scope": "A",
+  "description": "",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "two-user-1.png"
+  ],
+  "attributes": {
+    "width": 512,
+    "format": "PNG",
+    "lastModification": {
+      "actor": "admin",
+      "timestamp": "2026-10-27T08:41:00Z"
+    },
+    "size": 13106,
+    "lastModificationSignature": "0165207752368cdf92c57dfc5d77c86290b0b950c06d1f1a696b8459f62f93cc",
+    "height": 512
+  }
+}

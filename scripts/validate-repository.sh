@@ -23,21 +23,31 @@ section "1. Required repository paths"
 
 REQUIRED_PATHS=(
     "projects"
-    "config/resources"
     "compose/compose.yml"
     "scripts/sync-test-runtime.sh"
     "scripts/sync-dev-runtime.sh"
-    "scripts/extract-test-projects.sh"
+    "scripts/recovery/extract-test-projects.sh"
+    "scripts/recovery/extract-test-config.sh"
     "scripts/deploy-dev.sh"
+    "scripts/deploy-dev-config.sh"
+    "scripts/validate-repository.sh"
+    "scripts/provision-git-resource-acls.sh"
     ".github/workflows/deploy-dev.yml"
     ".env.example"
-    "config/deployable/core/com.inductiveautomation.opcua/device"
-    "config/deployable/core/ignition/tag-definition"
-    "config/deployable/core/ignition/tag-type-definition"
-    "config/deployable/core/ignition/database-connection"
-    "scripts/extract-test-config.sh"
-    "config/deployable/core/ignition/images"
-    "scripts/deploy-dev-config.sh"
+    "config/gateway/resources/core/com.inductiveautomation.opcua/device"
+    "config/gateway/resources/core/ignition/tag-provider"
+    "config/gateway/resources/core/ignition/tag-group"
+    "config/gateway/resources/core/ignition/tag-definition"
+    "config/gateway/resources/core/ignition/tag-type-definition"
+    "config/gateway/resources/core/ignition/database-connection"
+    "config/gateway/resources/core/ignition/images"
+
+    "config/gateway/resources/test/config-mode.json"
+    "config/gateway/resources/test/ignition/database-connection/CICD_Lab_DB/config.json"
+    "config/gateway/resources/test/ignition/database-connection/CICD_Lab_DB/resource.json"
+    "config/gateway/resources/dev/config-mode.json"
+    "config/gateway/resources/dev/ignition/database-connection/CICD_Lab_DB/config.json"
+    "config/gateway/resources/dev/ignition/database-connection/CICD_Lab_DB/resource.json"
 )
 
 for path in "${REQUIRED_PATHS[@]}"; do
@@ -47,6 +57,33 @@ for path in "${REQUIRED_PATHS[@]}"; do
         error "Required path is missing: $path"
     fi
 done
+
+if [[ -e "$REPO_ROOT/config/deployable" ]]; then
+    error "Legacy config/deployable must not exist"
+else
+    echo "OK: legacy config/deployable is absent"
+fi
+
+for forbidden_path in \
+    "config/gateway/resources/local" \
+    "config/gateway/resources/core/ignition/identity-provider" \
+    "config/gateway/resources/core/ignition/secret-provider" \
+    "config/gateway/resources/core/ignition/user-source"
+do
+    if [[ -n "$(git ls-files -- "$forbidden_path")" ]]; then
+        error "Sensitive Gateway path is tracked: $forbidden_path"
+    else
+        echo "OK: sensitive Gateway path is not tracked: $forbidden_path"
+    fi
+done
+
+if git ls-files \
+    | grep -Eq '(^|/)\.resources(/|$)|/System(/|$)'
+then
+    error "Generated .resources or System resources are tracked"
+else
+    echo "No generated .resources or System resources are tracked"
+fi
 
 section "2. Shell script syntax"
 
@@ -133,6 +170,8 @@ REQUIRED_IGNORE_PATTERNS=(
     "/secrets/"
     "/deploy/"
     "/build/"
+    "/services/ignition-dev/"
+    "/recovery-output/"
 )
 
 for pattern in "${REQUIRED_IGNORE_PATTERNS[@]}"; do

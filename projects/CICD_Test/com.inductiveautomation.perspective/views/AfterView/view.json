@@ -17,7 +17,7 @@
                 "textAlign": "left",
                 "wordWrap": "break-word"
               },
-              "text": "FULL_PROMOTION_TEST_20261020\n"
+              "text": "Deploy_Showcase"
             },
             "type": "ia.display.label"
           }
@@ -46,8 +46,8 @@
                   "grow": 1
                 },
                 "props": {
-                  "color": "#00AB11",
-                  "path": "material/fingerprint"
+                  "color": "#192A18",
+                  "path": "material/airline_seat_flat_angled"
                 },
                 "type": "ia.display.icon"
               }
@@ -64,36 +64,18 @@
             "children": [
               {
                 "meta": {
-                  "name": "Label"
+                  "name": "Image"
                 },
                 "position": {
                   "grow": 1
                 },
-                "propConfig": {
-                  "props.text": {
-                    "binding": {
-                      "config": {
-                        "expression": "now(1000)"
-                      },
-                      "transforms": [
-                        {
-                          "code": "\ttext \u003d testScript.printSecondAscii(value)\n\treturn text",
-                          "type": "script"
-                        }
-                      ],
-                      "type": "expr"
-                    }
-                  }
-                },
                 "props": {
-                  "style": {
-                    "color": "#000000",
-                    "fontFamily": "Noto Sans",
-                    "fontSize": "28px",
-                    "textAlign": "center"
-                  }
+                  "fit": {
+                    "mode": "fill"
+                  },
+                  "source": "/system/images/users-alt.svg"
                 },
-                "type": "ia.display.label"
+                "type": "ia.display.image"
               }
             ],
             "meta": {
@@ -124,6 +106,32 @@
             "meta": {
               "name": "Label"
             },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[default]changed_tag_name"
+                  },
+                  "type": "tag"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "18px",
+                "fontWeight": "normal",
+                "textAlign": "left",
+                "wordWrap": "break-word"
+              }
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Label_0"
+            },
             "props": {
               "style": {
                 "fontSize": "18px",
@@ -131,7 +139,7 @@
                 "textAlign": "left",
                 "wordWrap": "break-word"
               },
-              "text": "Automated deplyment changed this view - without any manual input or GW downtime."
+              "text": "admin_user_change"
             },
             "type": "ia.display.label"
           }
@@ -143,7 +151,7 @@
           "grow": 1
         },
         "props": {
-          "justify": "center",
+          "justify": "space-between",
           "style": {
             "backgroundColor": "#EFFFFF",
             "padding": "16px"

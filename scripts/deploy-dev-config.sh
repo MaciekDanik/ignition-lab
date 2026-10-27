@@ -5,8 +5,8 @@ set -Eeuo pipefail
 SOURCE_ROOT="${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 DEPLOY_ROOT="/srv/ignition-lab"
-GIT_CONFIG_ROOT="$SOURCE_ROOT/config/deployable"
-DEV_CONFIG_ROOT="$DEPLOY_ROOT/runtime/dev/config/resources"
+GIT_CONFIG_ROOT="$SOURCE_ROOT/config/gateway/resources"
+DEV_CONFIG_ROOT="${DEV_CONFIG_ROOT:-$SOURCE_ROOT/services/ignition-dev/config/resources}"
 BACKUP_ROOT="$DEPLOY_ROOT/backups/dev-config"
 
 API_TOKEN_FILE="$DEPLOY_ROOT/secrets/dev_gateway_api_token.txt"
@@ -14,16 +14,18 @@ CONFIG_SCAN_URL="http://localhost:9188/data/api/v1/scan/config"
 HEALTH_URL="http://localhost:9188/StatusPing"
 
 CONTAINER_NAME="ignition-dev"
-IGNITION_UID="2003"
 LOCK_FILE="$DEPLOY_ROOT/deploy-dev-config.lock"
 
 MANAGED_PATHS=(
     "core/com.inductiveautomation.opcua/device"
+    "core/ignition/tag-provider"
+    "core/ignition/tag-group"
     "core/ignition/tag-definition"
     "core/ignition/tag-type-definition"
     "core/ignition/database-connection"
     "core/ignition/images"
-    "core/ignition/tag-provider"
+    "test"
+    "dev"
 )
 
 DEPLOYMENT_ID="${GITHUB_SHA:-manual}-${GITHUB_RUN_ID:-local}-${GITHUB_RUN_ATTEMPT:-1}-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -128,35 +130,35 @@ verify_gateway() {
         && [[ "$oom" == "false" ]]
 }
 
-apply_permissions() {
+verify_destination_access() {
     local relative_path="$1"
     local target="$DEV_CONFIG_ROOT/$relative_path"
-    local child
+    local directory
+    local probe_file
 
     [[ -d "$target" ]] || return 0
 
-    setfacl -m "u:${IGNITION_UID}:rwX" "$target"
-    setfacl -d -m "u:${IGNITION_UID}:rwX" "$target"
+    while IFS= read -r -d '' directory; do
+        probe_file="$directory/.actions-deployment-probe"
 
-    if [[ "$relative_path" == "core/ignition/tag-definition" ]]; then
-        while IFS= read -r -d '' child; do
-            if [[ "$(basename "$child")" == "System" ]]; then
-                continue
-            fi
+        if ! touch "$probe_file"; then
+            log "Cannot create files in DEV configuration directory:"
+            log "  ${directory#"$DEV_CONFIG_ROOT/"}"
+            return 1
+        fi
 
-            setfacl -R -m "u:${IGNITION_UID}:rwX" "$child"
-            setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$child"
-        done < <(
-            find "$target" \
-                -mindepth 1 \
-                -maxdepth 1 \
-                -type d \
-                -print0
-        )
-    else
-        setfacl -R -m "u:${IGNITION_UID}:rwX" "$target"
-        setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$target"
-    fi
+        if ! rm -f "$probe_file"; then
+            log "Cannot remove files from DEV configuration directory:"
+            log "  ${directory#"$DEV_CONFIG_ROOT/"}"
+            return 1
+        fi
+    done < <(
+        find "$target" \
+            -type d \( -name 'System' -o -name '.resources' \) -prune \
+            -o -type d -print0
+    )
+
+    return 0
 }
 
 backup_managed_paths() {
@@ -174,14 +176,20 @@ backup_managed_paths() {
         if [[ -d "$source_path" ]]; then
             printf 'present\t%s\n' "$relative_path" >> "$MANIFEST_FILE"
             mkdir -p "$backup_path"
-            rsync -a \
-                --no-owner \
-                --no-group \
-                --no-perms \
-                --exclude='.resources/' \
-                --exclude='System/' \
-                "$source_path/" \
-                "$backup_path/"
+            if ! rsync -a \
+                    --no-owner \
+                    --no-group \
+                    --no-perms \
+                    --no-times \
+                    --exclude='.resources/' \
+                    --exclude='System/' \
+                    --exclude='*.bak/' \
+                    "$source_path/" \
+                    "$backup_path/"
+            then
+                log "Failed to back up scope: $relative_path"
+                return 1
+            fi
         else
             printf 'absent\t%s\n' "$relative_path" >> "$MANIFEST_FILE"
         fi
@@ -193,6 +201,8 @@ deploy_managed_paths() {
     local source_path
     local destination_path
 
+    mkdir -p "$DEV_CONFIG_ROOT"
+
     for relative_path in "${MANAGED_PATHS[@]}"; do
         source_path="$GIT_CONFIG_ROOT/$relative_path"
         destination_path="$DEV_CONFIG_ROOT/$relative_path"
@@ -203,16 +213,26 @@ deploy_managed_paths() {
             validate_json_tree "$source_path"
             mkdir -p "$destination_path"
 
-            rsync -a --delete \
+            verify_destination_access "$relative_path" \
+                || return 1
+
+            if ! rsync -a --delete \
                 --no-owner \
                 --no-group \
                 --no-perms \
+                --no-times \
                 --exclude='.resources/' \
                 --exclude='System/' \
+                --exclude='*.bak/' \
                 "$source_path/" \
                 "$destination_path/"
+            then
+                log "Failed to deploy scope: $relative_path"
+                return 1
+            fi
 
-            apply_permissions "$relative_path"
+            verify_destination_access "$relative_path" \
+                || return 1
         else
             log "Git scope is absent; leaving DEV scope unchanged."
         fi
@@ -234,16 +254,26 @@ restore_managed_paths() {
         if [[ "$state" == "present" ]]; then
             mkdir -p "$destination_path"
 
-            rsync -a --delete \
+            verify_destination_access "$relative_path" \
+                || return 1
+
+            if ! rsync -a --delete \
                 --no-owner \
                 --no-group \
                 --no-perms \
+                --no-times \
                 --exclude='.resources/' \
                 --exclude='System/' \
+                --exclude='*.bak/' \
                 "$backup_path/" \
                 "$destination_path/"
+            then
+                log "Failed to restore scope: $relative_path"
+                return 1
+            fi
 
-            apply_permissions "$relative_path"
+            verify_destination_access "$relative_path" \
+                || return 1
         else
             rm -rf "$destination_path"
         fi
@@ -270,6 +300,7 @@ verify_managed_paths() {
                 rsync -rcni --delete \
                     --exclude='.resources/' \
                     --exclude='System/' \
+                    --exclude='*.bak/' \
                     "$source_path/" \
                     "$destination_path/"
             )"
@@ -297,7 +328,13 @@ rollback() {
 
     if [[ "$RUNTIME_MODIFIED" -eq 1 && -f "$MANIFEST_FILE" ]]; then
         log "Restoring managed DEV configuration..."
-        restore_managed_paths
+
+        if ! restore_managed_paths; then
+            log "CRITICAL: restoring the DEV configuration backup failed."
+            log "Manual recovery is required."
+            cleanup
+            exit "$exit_code"
+        fi
 
         if scan_config && sleep 5 && verify_gateway; then
             log "Rollback completed successfully."
@@ -315,7 +352,7 @@ trap rollback EXIT
 exec 9>"$LOCK_FILE"
 flock -n 9 || fail "Another DEV configuration deployment is running."
 
-for command_name in docker rsync curl flock jq setfacl find; do
+for command_name in docker rsync curl flock jq find; do
     command -v "$command_name" >/dev/null \
         || fail "Required command is missing: $command_name"
 done
@@ -345,15 +382,19 @@ cat > "$DEPLOY_ROOT/last-successful-dev-config-deployment.json" <<METADATA
   "commit": "${GITHUB_SHA:-manual}",
   "scopes": [
     "core/com.inductiveautomation.opcua/device",
+    "core/ignition/tag-provider",
+    "core/ignition/tag-group",
     "core/ignition/tag-definition",
     "core/ignition/tag-type-definition",
     "core/ignition/database-connection",
     "core/ignition/images",
-    "core/ignition/tag-provider"
+    "test",
+    "dev"
   ],
   "completedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 }
 METADATA
+
 
 log "Pruning old DEV configuration backups..."
 

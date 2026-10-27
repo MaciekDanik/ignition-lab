@@ -14,7 +14,7 @@ ENV_FILE="$DEPLOY_ROOT/.env"
 COMPOSE_FILE="$RELEASE_ROOT/compose/compose.yml"
 API_TOKEN_FILE="$SECRETS_ROOT/dev_gateway_api_token.txt"
 
-DEV_RUNTIME="$RUNTIME_ROOT/dev/projects"
+DEV_RUNTIME="${DEV_PROJECTS_PATH:-$SOURCE_ROOT/services/ignition-dev/projects}"
 SOURCE_PROJECTS="$SOURCE_ROOT/projects"
 
 CONTAINER_NAME="ignition-dev"
@@ -180,11 +180,15 @@ verify_container_state() {
         && [[ "$oom" == "false" ]]
 }
 
-apply_project_permissions() {
-    # Deployment owns the synchronized project files. Ignition UID 2003 needs
-    # read/write/traverse access and matching defaults for files it creates.
-    setfacl -R -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
-    setfacl -R -d -m "u:${IGNITION_UID}:rwX" "$DEV_RUNTIME"
+verify_project_permissions() {
+    [[ -d "$DEV_RUNTIME" ]] \
+        || fail "DEV project directory does not exist: $DEV_RUNTIME"
+
+    [[ -w "$DEV_RUNTIME" ]] \
+        || fail "DEV project directory is not writable: $DEV_RUNTIME"
+
+    test -x "$DEV_RUNTIME" \
+        || fail "DEV project directory is not traversable: $DEV_RUNTIME"
 }
 
 restore_backup_files() {
@@ -193,11 +197,15 @@ restore_backup_files() {
     mkdir -p "$DEV_RUNTIME"
 
     rsync -a --delete \
+        --no-owner \
+        --no-group \
+        --no-perms \
+        --no-times \
         --exclude='.resources/' \
         "$BACKUP_DIR/projects/" \
         "$DEV_RUNTIME/"
 
-    apply_project_permissions
+    verify_project_permissions
 }
 
 restart_dev() {
@@ -310,8 +318,13 @@ log "Release root: $RELEASE_ROOT"
 [[ -f "$SOURCE_PROJECTS/CICD_Test/project.json" ]] \
     || fail "CICD_Test project.json is missing from deployment source."
 
-[[ -d "$DEV_RUNTIME" ]] \
-    || fail "DEV runtime projects directory does not exist: $DEV_RUNTIME"
+if [[ ! -d "$DEV_RUNTIME" ]]; then
+    log "Creating DEV projects directory: $DEV_RUNTIME"
+    mkdir -p "$DEV_RUNTIME"
+fi
+
+[[ -w "$DEV_RUNTIME" ]] \
+    || fail "DEV runtime directory is not writable: $DEV_RUNTIME"
 
 [[ -f "$ENV_FILE" ]] \
     || fail "Deployment environment file is missing: $ENV_FILE"
@@ -319,7 +332,7 @@ log "Release root: $RELEASE_ROOT"
 [[ -f "$COMPOSE_FILE" ]] \
     || fail "Compose file is missing: $COMPOSE_FILE"
 
-for required_command in docker rsync curl flock jq setfacl; do
+for required_command in docker rsync curl flock jq; do
     command -v "$required_command" >/dev/null \
         || fail "Required command is not installed: $required_command"
 done
@@ -353,6 +366,10 @@ log "Creating backup: $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR/projects"
 
 rsync -a \
+    --no-owner \
+    --no-group \
+    --no-perms \
+    --no-times \
     --exclude='.resources/' \
     "$DEV_RUNTIME/" \
     "$BACKUP_DIR/projects/"
@@ -377,11 +394,15 @@ RUNTIME_MODIFIED=1
 mkdir -p "$DEV_RUNTIME"
 
 rsync -a --delete \
+    --no-owner \
+    --no-group \
+    --no-perms \
+    --no-times \
     --exclude='.resources/' \
     "$SOURCE_PROJECTS/" \
     "$DEV_RUNTIME/"
 
-apply_project_permissions
+verify_project_permissions
 
 if [[ "${DEPLOY_TEST_FORCE_FAILURE:-false}" == "true" ]]; then
     fail "Deliberate rollback test failure after project synchronization."

@@ -1,0 +1,3 @@
+Time Interval, Browse Path, Value Source, Data Type
+"0","tags/newTag9","sine(-100.0, 100.0, 50.0, true)","Double"
+"0","test/tags/tag1","Deplyoed from TEST","String"

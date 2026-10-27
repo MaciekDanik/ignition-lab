@@ -1,0 +1,7 @@
+{
+  "title": "TEST",
+  "description": "TEST environment overrides",
+  "enabled": true,
+  "inheritable": true,
+  "parent": "core"
+}
