@@ -139,7 +139,7 @@
                 "textAlign": "left",
                 "wordWrap": "break-word"
               },
-              "text": "test - REPOSITORY_LOCAL_PROMOTION_WORKS"
+              "text": "admin_user_change"
             },
             "type": "ia.display.label"
           }
