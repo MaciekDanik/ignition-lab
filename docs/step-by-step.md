@@ -122,7 +122,7 @@ done
 The validated permissions model uses:
 
 ```text
-Developer user: masiek
+Developer user: [USER_NAME]
 GitHub Actions runner user: actions
 Ignition container UID: 2003
 ```
