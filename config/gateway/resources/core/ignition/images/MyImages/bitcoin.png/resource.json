@@ -1,0 +1,21 @@
+{
+  "scope": "A",
+  "description": "",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "bitcoin.png"
+  ],
+  "attributes": {
+    "width": 512,
+    "format": "PNG",
+    "lastModification": {
+      "actor": "admin",
+      "timestamp": "2026-10-27T06:48:21Z"
+    },
+    "size": 17009,
+    "lastModificationSignature": "975c2f71cf89a62068cba1f40606cdfb36e48ca53f1dcd4b053b3530dfec711f",
+    "height": 512
+  }
+}
