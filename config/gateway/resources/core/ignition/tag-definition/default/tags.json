@@ -13,5 +13,19 @@
     "opcServer": "Ignition OPC UA Server",
     "tagType": "AtomicTag",
     "valueSource": "opc"
+  },
+  {
+    "dataType": "Int4",
+    "defaultValue": "",
+    "documentation": "TAG_EDITED_BY_USER_1",
+    "name": "TwoUserTag1",
+    "tagType": "AtomicTag",
+    "valueSource": "memory"
+  },
+  {
+    "documentation": "TAG_EDITED_BY_USER_2",
+    "name": "TwoUserTag2",
+    "tagType": "AtomicTag",
+    "valueSource": "memory"
   }
 ]
