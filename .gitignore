@@ -31,7 +31,6 @@
 **/.container-init.conf
 **/conversion-report.txt
 **.digest.json
-**/projects/conversion-report.txt
 **/migration-log-*.md
 **/.resources/
 **/config/gateway/**/temp*/
@@ -68,7 +67,6 @@ Thumbs.db
 /*.pid
 /*.status
 **/modules/
-**/user-lib/modules/
 **/.ignition/
 **/.install4j/
 
@@ -79,8 +77,6 @@ config/resources/core/ignition/keyboard_layout/
 config/resources/core/ignition/quickstart/
 
 # System-owned tag infrastructure
-config/resources/core/ignition/tag-definition/
-config/resources/core/ignition/tag-type-definition/
 config/resources/core/ignition/tag-provider/System/
 config/resources/core/ignition/tag-group/System/
 
