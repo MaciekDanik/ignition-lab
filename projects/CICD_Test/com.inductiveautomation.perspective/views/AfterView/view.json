@@ -46,8 +46,8 @@
                   "grow": 1
                 },
                 "props": {
-                  "color": "#192A18",
-                  "path": "material/airline_seat_flat_angled"
+                  "color": "#FF0002",
+                  "path": "material/bike_scooter"
                 },
                 "type": "ia.display.icon"
               }
