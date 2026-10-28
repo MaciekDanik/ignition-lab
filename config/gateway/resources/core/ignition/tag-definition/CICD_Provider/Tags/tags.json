@@ -1,0 +1,25 @@
+[
+  {
+    "dataType": "Boolean",
+    "name": "randomBool",
+    "opcItemPath": "ns\u003d1;s\u003d[CICD_Simulator]showcaseTags/randValue",
+    "opcServer": "Ignition OPC UA Server",
+    "tagType": "AtomicTag",
+    "valueSource": "opc"
+  },
+  {
+    "name": "Sine",
+    "opcItemPath": "ns\u003d1;s\u003d[CICD_Simulator]showcaseTags/sineValue",
+    "opcServer": "Ignition OPC UA Server",
+    "tagType": "AtomicTag",
+    "valueSource": "opc"
+  },
+  {
+    "dataType": "String",
+    "name": "stringTag",
+    "opcItemPath": "ns\u003d1;s\u003d[CICD_Simulator]tags/test1",
+    "opcServer": "Ignition OPC UA Server",
+    "tagType": "AtomicTag",
+    "valueSource": "opc"
+  }
+]

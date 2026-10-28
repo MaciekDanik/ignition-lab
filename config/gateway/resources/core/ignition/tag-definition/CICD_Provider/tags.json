@@ -1,5 +1,14 @@
 [
   {
+    "dataType": "Float8",
+    "historyEnabled": false,
+    "name": "cylinderTag",
+    "opcItemPath": "ns\u003d1;s\u003d[CICD_Simulator]showcaseTags/cylinderValue",
+    "opcServer": "Ignition OPC UA Server",
+    "tagType": "AtomicTag",
+    "valueSource": "opc"
+  },
+  {
     "dataType": "String",
     "defaultValue": "Made on TEST in CICD_Provider",
     "name": "NewProviderTestTag",

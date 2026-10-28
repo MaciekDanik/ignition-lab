@@ -1,2 +1,5 @@
 Time Interval, Browse Path, Value Source, Data Type
+"0","showcaseTags/sineValue","sine(-80.0, 160.0, 200.0, false)","Int16"
 "0","tags/test1","SomeNewOtherAwesomeTagValue_2","String"
+"0","showcaseTags/randValue","random(0.0, 1.0, false)","Boolean"
+"0","showcaseTags/cylinderValue","realistic(69.0, 0.8, 0.02, 0.05, true)","Double"
