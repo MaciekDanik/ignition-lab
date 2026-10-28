@@ -1,0 +1,616 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 1080,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Label"
+            },
+            "props": {
+              "style": {
+                "classes": "heading1\ntext-center\nfont-bold\ntext-primary"
+              },
+              "text": "Simple show case for Ignition Versioning \u0026 deployments"
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "ToggleSwitch"
+                },
+                "position": {
+                  "grow": 1
+                },
+                "propConfig": {
+                  "props.label.text": {
+                    "binding": {
+                      "config": {
+                        "path": "session.props.theme"
+                      },
+                      "transforms": [
+                        {
+                          "code": "\tif value \u003d\u003d \u0027light\u0027: return \u0027Dark Theme\u0027\n\telif value \u003d\u003d \u0027dark\u0027: return \u0027Light Theme\u0027",
+                          "type": "script"
+                        }
+                      ],
+                      "type": "property"
+                    }
+                  },
+                  "props.selected": {
+                    "onChange": {
+                      "enabled": null,
+                      "script": "\tif currentValue.value \u003d\u003d True: self.session.props.theme \u003d \u0027dark\u0027\n\telse: self.session.props.theme \u003d \u0027light\u0027"
+                    }
+                  }
+                },
+                "props": {
+                  "color": {
+                    "selected": "--color-primary"
+                  },
+                  "label": {
+                    "style": {
+                      "classes": "heading5\ntext-center\nfont-regular\ntext-primary"
+                    }
+                  }
+                },
+                "type": "ia.input.toggle-switch"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "justify": "space-between"
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "FlexContainer"
+        },
+        "position": {
+          "grow": 0.05
+        },
+        "props": {
+          "justify": "space-between",
+          "style": {
+            "classes": "padding-base panel"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Label"
+            },
+            "position": {
+              "basis": "50px"
+            },
+            "props": {
+              "style": {
+                "classes": "heading4 text-left font-regular text-primary"
+              },
+              "text": "Some tag values"
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "CylindricalTank"
+                    },
+                    "position": {
+                      "basis": "136px"
+                    },
+                    "propConfig": {
+                      "props.value": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[CICD_Provider]cylinderTag"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "type": "ia.display.cylindrical-tank"
+                  }
+                ],
+                "meta": {
+                  "name": "FlexContainer"
+                },
+                "position": {
+                  "basis": "200px",
+                  "grow": 0.3
+                },
+                "props": {
+                  "justify": "center",
+                  "style": {
+                    "classes": "panel-surface margin-r-s"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "heading5 text-left font-bold text-primary margin-r-base"
+                          },
+                          "text": "Long description of some super important tag value - random Bool"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label_0"
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "fallbackDelay": 2.5,
+                                "mode": "direct",
+                                "tagPath": "[CICD_Provider]Tags/randomBool"
+                              },
+                              "type": "tag"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "heading5 text-left font-regular text-primary"
+                          }
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Checkbox"
+                        },
+                        "position": {
+                          "basis": "56px"
+                        },
+                        "propConfig": {
+                          "props.selected": {
+                            "binding": {
+                              "config": {
+                                "fallbackDelay": 2.5,
+                                "mode": "direct",
+                                "tagPath": "[CICD_Provider]Tags/randomBool"
+                              },
+                              "type": "tag"
+                            }
+                          }
+                        },
+                        "props": {
+                          "checkedIcon": {
+                            "color": {
+                              "enabled": "--color-primary"
+                            }
+                          },
+                          "style": {
+                            "classes": "margin-r-base"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.input.checkbox"
+                      }
+                    ],
+                    "meta": {
+                      "name": "FlexContainer"
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "panel-accent"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "heading5 text-left font-bold text-primary margin-r-base"
+                          },
+                          "text": "Long description of some super important tag value - STRING"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label_0"
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "fallbackDelay": 2.5,
+                                "mode": "direct",
+                                "tagPath": "[CICD_Provider]Tags/stringTag"
+                              },
+                              "type": "tag"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "heading5 text-left font-regular text-primary"
+                          }
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "FlexContainer_0"
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "panel-accent margin-y-base"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "heading5 text-left font-bold text-primary margin-r-base"
+                          },
+                          "text": "Long description of some super important tag value - SINE"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label_0"
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "fallbackDelay": 2.5,
+                                "mode": "direct",
+                                "tagPath": "[CICD_Provider]Tags/Sine"
+                              },
+                              "type": "tag"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "heading5 text-left font-regular text-primary"
+                          }
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "FlexContainer_1"
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "panel-accent"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "heading5 text-left font-bold text-primary margin-r-base"
+                          },
+                          "text": "Long description of some super important tag value - script result"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label_0"
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "now()"
+                              },
+                              "transforms": [
+                                {
+                                  "code": "\treturn testScript.printSecondAscii(value)",
+                                  "type": "script"
+                                }
+                              ],
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "heading5 text-left font-regular text-primary"
+                          }
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "FlexContainer_2"
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "panel-accent margin-t-base"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "meta": {
+                  "name": "FlexContainer_0"
+                },
+                "position": {
+                  "basis": "200px",
+                  "grow": 0.7
+                },
+                "props": {
+                  "direction": "column",
+                  "justify": "center",
+                  "style": {
+                    "classes": "panel-surface padding-l-s"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer"
+            },
+            "position": {
+              "basis": "200px",
+              "grow": 1
+            },
+            "props": {
+              "justify": "center"
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "FlexContainer_0"
+        },
+        "position": {
+          "grow": 0.3
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "classes": "margin-y-base\npanel\n"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "classes": "heading6 text-center font-bold text-primary text-warning"
+                  },
+                  "text": "Warning"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer_0"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "classes": "bg-warning border-warning radius-soft"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "classes": "heading6 text-center font-bold text-primary\ntext-accent"
+                  },
+                  "text": "Accent"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "classes": "bg-accent border-accent radius-soft"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "classes": "heading6 text-center font-bold text-primary text-success"
+                  },
+                  "text": "Success"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer_1"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "classes": "bg-success-light border-success radius-soft"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "classes": "heading6 text-center font-bold text-primary text-error"
+                  },
+                  "text": "Error"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer_2"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "classes": "bg-error-light \nborder-error\nradius-soft"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "classes": "heading6\ntext-center\nfont-bold\ntext-primary\ntext-info"
+                  },
+                  "text": "Info"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer_3"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "classes": "bg-info-light border-info radius-soft"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "FlexContainer_1"
+        },
+        "position": {
+          "grow": 0.6
+        },
+        "props": {
+          "justify": "space-evenly",
+          "style": {
+            "classes": "panel"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "propConfig": {
+      "props.style.classes": {
+        "binding": {
+          "config": {
+            "expression": "if( {session.props.theme} \u003d \u0027dark\u0027,\r\n\t\u0027padding-l app-theme-dark bg-root\u0027,\r\n\t\u0027padding-l app-theme-light bg-root\u0027\r\n)"
+          },
+          "type": "expr"
+        }
+      }
+    },
+    "props": {
+      "direction": "column",
+      "style": {}
+    },
+    "type": "ia.container.flex"
+  }
+}
